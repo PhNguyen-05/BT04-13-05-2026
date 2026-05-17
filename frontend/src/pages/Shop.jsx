@@ -74,7 +74,7 @@ const Shop = () => {
             <header className="aura-section-header mb-4">
                 <span className="aura-section-tag">Cửa hàng</span>
                 <h1 className="aura-section-title font-display">Tìm son môi yêu thích</h1>
-                <p className="aura-section-desc">5 thương hiệu: 3CE, Romand, Into You, Merzy, BBIA</p>
+                <p className="aura-section-desc"> 3CE, Romand, Into You, Merzy, BBIA</p>
             </header>
 
             <h5 className="fw-bold mb-3 font-display">Danh mục thương hiệu</h5>

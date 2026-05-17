@@ -5,7 +5,7 @@ import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
 
 const Cart = () => {
-    const { cart, loading, removeFromCart, getTotalPrice, refreshCart } = useContext(CartContext);
+    const { cart, loading, removeFromCart, updateCartQuantity, getTotalPrice } = useContext(CartContext);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -61,9 +61,27 @@ const Cart = () => {
                                     </Col>
                                     <Col md={2} className="text-center">
                                         <h6 className="text-danger fw-bold">
-                                            {item.product?.price.toLocaleString('vi-VN')} ₫
+                                            {(item.product?.price || 0).toLocaleString('vi-VN')} ₫
                                         </h6>
-                                        <small>x {item.quantity}</small>
+                                        <div className="d-flex align-items-center justify-content-center gap-2 mt-2">
+                                            <Button
+                                                variant="outline-secondary"
+                                                size="sm"
+                                                disabled={item.quantity <= 1}
+                                                onClick={() => updateCartQuantity(item.product?._id, item.quantity - 1)}
+                                            >
+                                                −
+                                            </Button>
+                                            <span className="fw-semibold">{item.quantity}</span>
+                                            <Button
+                                                variant="outline-secondary"
+                                                size="sm"
+                                                disabled={item.quantity >= (item.product?.stock || 1)}
+                                                onClick={() => updateCartQuantity(item.product?._id, item.quantity + 1)}
+                                            >
+                                                +
+                                            </Button>
+                                        </div>
                                     </Col>
                                     <Col md={2} className="text-end">
                                         <Button 

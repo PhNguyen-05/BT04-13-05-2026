@@ -20,17 +20,16 @@ const Home = () => {
     const [productsByCategory, setProductsByCategory] = useState({});
 
     useEffect(() => {
-        console.log('📝 Home.jsx mounted — fetching initial data...');
         const fetchData = async () => {
             try {
                 const [
                     promoRes,
+                    categoryRes,
                     saleRes,
                     featuredRes,
                     bestRes,
                     newRes,
                     articleRes,
-                    categoryRes,
                 ] = await Promise.all([
                     api.get('/promotions'),
                     api.get('/categories'),
@@ -41,49 +40,37 @@ const Home = () => {
                     api.get('/articles?featured=true&limit=3'),
                 ]);
 
-                console.log('✅ Fetched:', {
-                    promotions: promoRes.data?.length,
-                    categories: categoryRes.data?.length,
-                    onSale: saleRes.data?.length,
-                    featured: featuredRes.data?.length,
-                    bestSellers: bestRes.data?.length,
-                    newProducts: newRes.data?.length,
-                    articles: articleRes.data?.length,
-                });
-
-                setPromotions(promoRes.data);
-                setPromoProducts(saleRes.data.slice(0, 4));
-                setFeatured(featuredRes.data.slice(0, 4));
-                setBestSellers(bestRes.data.slice(0, 4));
-                setNewProducts(newRes.data.slice(0, 4));
-                setArticles(articleRes.data.length ? articleRes.data : (await api.get('/articles?limit=3')).data);
-                setCategories(categoryRes.data);
+                setPromotions(promoRes.data || []);
+                setCategories(categoryRes.data || []);
+                setPromoProducts((saleRes.data || []).slice(0, 4));
+                setFeatured((featuredRes.data || []).slice(0, 4));
+                setBestSellers((bestRes.data || []).slice(0, 4));
+                setNewProducts((newRes.data || []).slice(0, 4));
+                const articlesData = articleRes.data || [];
+                setArticles(
+                    articlesData.length
+                        ? articlesData
+                        : (await api.get('/articles?limit=3')).data || []
+                );
             } catch (err) {
-                console.error('❌ Fetch error:', err.message, err.response?.status);
+                console.error('Home fetch error:', err.message);
             }
         };
         fetchData();
     }, []);
 
     useEffect(() => {
-        console.log('🔍 DEBUG: categories =', categories);
-        if (!categories?.length) {
-            console.log('⚠️ categories is empty');
-            return;
-        }
+        if (!categories?.length) return;
         const top = categories.slice(0, 5);
-        console.log('📦 Fetching products for categories:', top.map(c => c.name));
         Promise.all(top.map((cat) => api.get(`/products?category=${cat._id}`)))
             .then((resArr) => {
-                console.log('✅ Products fetched:', resArr.map(r => ({ count: r.data.length })));
                 const map = {};
                 resArr.forEach((r, i) => {
                     map[top[i]._id] = (r.data || []).slice(0, 4);
                 });
-                console.log('🗂️ productsByCategory map:', Object.keys(map).length, 'categories');
                 setProductsByCategory(map);
             })
-            .catch((err) => console.error('❌ Error fetching products:', err));
+            .catch((err) => console.error('Error fetching category products:', err));
     }, [categories]);
 
     const renderProducts = (list, emptyText) =>
@@ -109,7 +96,7 @@ const Home = () => {
         }))
         : [
             {
-                image: '/bbia/bìa.jpg',
+                image: '/product/1.jpg',
                 badge: '✨ Sale',
                 title: 'Ưu đãi son môi',
                 subtitle: 'Giảm đến 50% — Số lượng có hạn',

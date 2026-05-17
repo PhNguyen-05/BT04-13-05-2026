@@ -1,13 +1,27 @@
+import { useState } from 'react';
 import { Card, Button, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1586495778270-3263b471a0db?w=400&q=80';
+
 const ProductCard = ({ product }) => {
+    const [imgSrc, setImgSrc] = useState(product.images?.[0] || FALLBACK_IMG);
+
+    const handleImgError = () => {
+        if (imgSrc.endsWith('.jpg')) {
+            setImgSrc(imgSrc.replace(/\.jpg$/, '.webp'));
+        } else {
+            setImgSrc(FALLBACK_IMG);
+        }
+    };
+
     return (
         <Card className="h-100 product-card border-0 overflow-hidden">
             <div className="position-relative">
                 <Card.Img
                     variant="top"
-                    src={product.images?.[0] || 'https://images.unsplash.com/photo-1586495778270-3263b471a0db?w=400&q=80'}
+                    src={imgSrc}
+                    onError={handleImgError}
                     className="product-image"
                     alt={product.name}
                     style={{ height: '260px', objectFit: 'cover' }}

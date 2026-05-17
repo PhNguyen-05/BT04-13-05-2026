@@ -59,20 +59,23 @@ const Navbar = () => {
                     <Nav className="ms-auto align-items-center gap-2">
                         {user ? (
                             <>
+                                <Nav.Link as={Link} to="/cart" className="aura-nav-link d-flex align-items-center gap-1">
+                                    <i className="bi bi-cart3" />
+                                    Giỏ hàng
+                                    {cartCount > 0 && (
+                                        <Badge
+                                            pill
+                                            className="align-self-center"
+                                            style={{ background: 'var(--gradient-btn)' }}
+                                        >
+                                            {cartCount}
+                                        </Badge>
+                                    )}
+                                </Nav.Link>
                                 <span className="aura-user-pill d-none d-lg-inline" title={user.email}>
                                     <i className="bi bi-person-heart me-1 text-aura" />
                                     Xin chào, <strong>{user.name}</strong>
                                 </span>
-                                {cartCount > 0 && (
-                                    <Badge
-                                        pill
-                                        className="align-self-center"
-                                        style={{ background: 'var(--gradient-btn)' }}
-                                    >
-                                        <i className="bi bi-cart3 me-1" />
-                                        {cartCount}
-                                    </Badge>
-                                )}
                                 <Button className="btn-aura-outline btn-sm" onClick={handleLogout}>
                                     <i className="bi bi-box-arrow-right me-1" />
                                     Đăng xuất

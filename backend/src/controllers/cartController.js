@@ -49,10 +49,73 @@ const addToCart = async (req, res) => {
         }
 
         await cart.save();
-        res.json({ message: 'Thêm vào giỏ hàng thành công', cart });
+        const updated = await Cart.findOne({ user: req.user.id }).populate('items.product');
+        res.json(updated);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-module.exports = { getCart, addToCart };
+const updateCartItem = async (req, res) => {
+    try {
+        const { productId, quantity } = req.body;
+        if (!productId || quantity == null) {
+            return res.status(400).json({ message: 'Thiếu productId hoặc quantity' });
+        }
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
+        }
+
+        const cart = await Cart.findOne({ user: req.user.id });
+        if (!cart) {
+            return res.status(404).json({ message: 'Giỏ hàng trống' });
+        }
+
+        const itemIndex = cart.items.findIndex(
+            (item) => item.product.toString() === productId
+        );
+        if (itemIndex === -1) {
+            return res.status(404).json({ message: 'Sản phẩm không có trong giỏ hàng' });
+        }
+
+        if (quantity <= 0) {
+            cart.items.splice(itemIndex, 1);
+        } else if (quantity > product.stock) {
+            return res.status(400).json({
+                message: `Chỉ còn ${product.stock} sản phẩm trong kho`,
+            });
+        } else {
+            cart.items[itemIndex].quantity = quantity;
+        }
+
+        await cart.save();
+        const updated = await Cart.findOne({ user: req.user.id }).populate('items.product');
+        res.json(updated);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const removeFromCart = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const cart = await Cart.findOne({ user: req.user.id });
+        if (!cart) {
+            return res.status(404).json({ message: 'Giỏ hàng trống' });
+        }
+
+        cart.items = cart.items.filter(
+            (item) => item.product.toString() !== productId
+        );
+        await cart.save();
+
+        const updated = await Cart.findOne({ user: req.user.id }).populate('items.product');
+        res.json(updated);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { getCart, addToCart, updateCartItem, removeFromCart };

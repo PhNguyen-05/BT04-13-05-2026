@@ -32,8 +32,8 @@ export const CartProvider = ({ children }) => {
 
     const addToCart = async (productId, quantity = 1) => {
         try {
-            await api.post('/cart/add', { productId, quantity });
-            await fetchCart(); // Refresh giỏ hàng
+            const res = await api.post('/cart/add', { productId, quantity });
+            setCart(res.data);
             return true;
         } catch (error) {
             alert(error.response?.data?.message || 'Không thể thêm vào giỏ hàng');
@@ -42,8 +42,27 @@ export const CartProvider = ({ children }) => {
     };
 
     const removeFromCart = async (productId) => {
-        // TODO: Thêm route delete ở backend sau
-        alert('Chức năng xóa đang được cập nhật');
+        if (!productId) return false;
+        try {
+            const res = await api.delete(`/cart/remove/${productId}`);
+            setCart(res.data);
+            return true;
+        } catch (error) {
+            alert(error.response?.data?.message || 'Không thể xóa sản phẩm');
+            return false;
+        }
+    };
+
+    const updateCartQuantity = async (productId, quantity) => {
+        if (!productId) return false;
+        try {
+            const res = await api.put('/cart/update', { productId, quantity });
+            setCart(res.data);
+            return true;
+        } catch (error) {
+            alert(error.response?.data?.message || 'Không thể cập nhật số lượng');
+            return false;
+        }
     };
 
     const getTotalItems = () => {
@@ -62,6 +81,7 @@ export const CartProvider = ({ children }) => {
             loading,
             addToCart,
             removeFromCart,
+            updateCartQuantity,
             getTotalItems,
             getTotalPrice,
             refreshCart: fetchCart

@@ -9,7 +9,7 @@ const CategoryStrip = ({ categories, limit = 5 }) => {
     const getCover = (cat) => {
         if (cat.image) return cat.image;
         const folder = (cat.slug || cat.name || '').toString().toLowerCase();
-        return `/${folder}/cover.jpg`;
+        return `/${folder}/bìa.jpg`;
     };
 
     return (
