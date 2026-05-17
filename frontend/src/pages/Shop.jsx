@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
+import CategoryStrip from '../components/CategoryStrip';
 import api from '../services/api.service';
 
 const Shop = () => {
@@ -25,6 +26,8 @@ const Shop = () => {
     }, []);
 
     useEffect(() => {
+        const c = searchParams.get('category');
+        if (c) setCategory(c);
         if (searchParams.get('onSale') === 'true') setOnSale(true);
     }, [searchParams]);
 
@@ -71,8 +74,11 @@ const Shop = () => {
             <header className="aura-section-header mb-4">
                 <span className="aura-section-tag">Cửa hàng</span>
                 <h1 className="aura-section-title font-display">Tìm son môi yêu thích</h1>
-                <p className="aura-section-desc">Lọc theo nhiều điều kiện — tên, danh mục, giá, tồn kho...</p>
+                <p className="aura-section-desc">5 thương hiệu: 3CE, Romand, Into You, Merzy, BBIA</p>
             </header>
+
+            <h5 className="fw-bold mb-3 font-display">Danh mục thương hiệu</h5>
+            <CategoryStrip categories={categories} />
 
             <div className="aura-filter-panel p-4 mb-4 rounded-4">
                 <Row className="g-3 align-items-end">

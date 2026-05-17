@@ -49,6 +49,39 @@
 
 
 
+// require('dotenv').config();
+// const express = require('express');
+// const cors = require('cors');
+// const connectDB = require('./config/database');
+
+// const app = express();
+
+// // Middleware
+// app.use(cors());
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+
+// // Kết nối DB
+// connectDB();
+
+// // Routes
+// app.use('/api/auth', require('./routes/auth'));
+// app.use('/api/categories', require('./routes/category'));
+// app.use('/api/products', require('./routes/product'));
+// app.use('/api/articles', require('./routes/article'));
+// app.use('/api/promotions', require('./routes/promotion'));
+// app.use('/api/cart', require('./routes/cart'));
+// app.use('/api/orders', require('./routes/order'));
+
+// app.get('/', (req, res) => {
+//     res.json({ message: '🚀 Aura Lips Backend đang chạy...' });
+// });
+
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//     console.log(`✅ Server Aura Lips chạy tại: http://localhost:${PORT}`);
+// });
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -56,15 +89,19 @@ const connectDB = require('./config/database');
 
 const app = express();
 
-// Middleware
+// ==================== MIDDLEWARE ====================
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Kết nối DB
+// 🔥 QUAN TRỌNG: Serve file tĩnh (ảnh sản phẩm)
+app.use(express.static('public'));                    // Cho phép truy cập /3ce/..., /romand/...
+app.use('/public', express.static('public'));         // Backup nếu cần
+
+// Kết nối Database
 connectDB();
 
-// Routes
+// ==================== ROUTES ====================
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/categories', require('./routes/category'));
 app.use('/api/products', require('./routes/product'));
@@ -73,11 +110,16 @@ app.use('/api/promotions', require('./routes/promotion'));
 app.use('/api/cart', require('./routes/cart'));
 app.use('/api/orders', require('./routes/order'));
 
+// Test route
 app.get('/', (req, res) => {
-    res.json({ message: '🚀 Aura Lips Backend đang chạy...' });
+    res.json({ 
+        message: '🚀 Aura Lips Backend đang chạy...',
+        staticFiles: 'http://localhost:3000/3ce/bìa.jpg (kiểm tra ảnh)'
+    });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Server Aura Lips chạy tại: http://localhost:${PORT}`);
+    console.log(`📁 Static files được serve từ thư mục: /public`);
 });

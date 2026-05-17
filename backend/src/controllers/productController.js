@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const mongoose = require('mongoose');
 
 const getProducts = async (req, res) => {
     try {
@@ -21,7 +22,8 @@ const getProducts = async (req, res) => {
             ];
         }
         if (category) {
-            filter.category = category;
+            // Convert string category ID to MongoDB ObjectId
+            filter.category = new mongoose.Types.ObjectId(category);
         }
         if (minPrice || maxPrice) {
             filter.price = {};

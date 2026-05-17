@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import ArticleCard from '../components/ArticleCard';
 import MemberWelcome from '../components/MemberWelcome';
+import CategoryStrip from '../components/CategoryStrip';
 import api from '../services/api.service';
 import { AuthContext } from '../context/AuthContext';
 
@@ -15,8 +16,11 @@ const Home = () => {
     const [bestSellers, setBestSellers] = useState([]);
     const [newProducts, setNewProducts] = useState([]);
     const [articles, setArticles] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [productsByCategory, setProductsByCategory] = useState({});
 
     useEffect(() => {
+        console.log('📝 Home.jsx mounted — fetching initial data...');
         const fetchData = async () => {
             try {
                 const [
@@ -26,8 +30,10 @@ const Home = () => {
                     bestRes,
                     newRes,
                     articleRes,
+                    categoryRes,
                 ] = await Promise.all([
                     api.get('/promotions'),
+                    api.get('/categories'),
                     api.get('/products?onSale=true'),
                     api.get('/products?featured=true'),
                     api.get('/products?sort=sold'),
@@ -35,18 +41,50 @@ const Home = () => {
                     api.get('/articles?featured=true&limit=3'),
                 ]);
 
+                console.log('✅ Fetched:', {
+                    promotions: promoRes.data?.length,
+                    categories: categoryRes.data?.length,
+                    onSale: saleRes.data?.length,
+                    featured: featuredRes.data?.length,
+                    bestSellers: bestRes.data?.length,
+                    newProducts: newRes.data?.length,
+                    articles: articleRes.data?.length,
+                });
+
                 setPromotions(promoRes.data);
                 setPromoProducts(saleRes.data.slice(0, 4));
                 setFeatured(featuredRes.data.slice(0, 4));
                 setBestSellers(bestRes.data.slice(0, 4));
                 setNewProducts(newRes.data.slice(0, 4));
                 setArticles(articleRes.data.length ? articleRes.data : (await api.get('/articles?limit=3')).data);
+                setCategories(categoryRes.data);
             } catch (err) {
-                console.error(err);
+                console.error('❌ Fetch error:', err.message, err.response?.status);
             }
         };
         fetchData();
     }, []);
+
+    useEffect(() => {
+        console.log('🔍 DEBUG: categories =', categories);
+        if (!categories?.length) {
+            console.log('⚠️ categories is empty');
+            return;
+        }
+        const top = categories.slice(0, 5);
+        console.log('📦 Fetching products for categories:', top.map(c => c.name));
+        Promise.all(top.map((cat) => api.get(`/products?category=${cat._id}`)))
+            .then((resArr) => {
+                console.log('✅ Products fetched:', resArr.map(r => ({ count: r.data.length })));
+                const map = {};
+                resArr.forEach((r, i) => {
+                    map[top[i]._id] = (r.data || []).slice(0, 4);
+                });
+                console.log('🗂️ productsByCategory map:', Object.keys(map).length, 'categories');
+                setProductsByCategory(map);
+            })
+            .catch((err) => console.error('❌ Error fetching products:', err));
+    }, [categories]);
 
     const renderProducts = (list, emptyText) =>
         list.length > 0 ? (
@@ -124,6 +162,52 @@ const Home = () => {
                     ))}
                 </Row>
             </Container>
+
+            {/* 5 thương hiệu */}
+            <section className="aura-section pt-0">
+                <Container>
+                    <header className="aura-section-header mb-3">
+                        <span className="aura-section-tag">Thương hiệu</span>
+                        <h2 className="aura-section-title font-display">Mua theo danh mục</h2>
+                    </header>
+                    <CategoryStrip categories={categories} />
+                </Container>
+            </section>
+
+            <section className="aura-section">
+                <Container>
+                    <header className="aura-section-header mb-3">
+                        <span className="aura-section-tag">Danh mục</span>
+                        <h2 className="aura-section-title font-display">Sản phẩm theo danh mục</h2>
+                    </header>
+
+                    {categories.slice(0, 5).map((cat) => (
+                        <div key={cat._id} className="mb-4">
+                            <div className="d-flex align-items-center mb-3">
+                                <div
+                                    style={{
+                                        width: 120,
+                                        height: 80,
+                                        backgroundImage: `url(${cat.image || `/${(cat.slug || cat.name || '').toString().toLowerCase()}/bìa.jpg`})`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                        borderRadius: 8,
+                                        marginRight: 16,
+                                    }}
+                                />
+                                <div>
+                                    <h5 className="mb-1">{cat.name}</h5>
+                                    <Button as={Link} to={`/shop?category=${cat._id}`} className="btn-aura-outline btn-sm">
+                                        Xem tất cả
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {renderProducts(productsByCategory[cat._id] || [], 'Chưa có sản phẩm cho danh mục này.')}
+                        </div>
+                    ))}
+                </Container>
+            </section>
 
             {/* Sản phẩm khuyến mãi */}
             <section className="aura-section" style={{ background: 'linear-gradient(180deg, var(--peach) 0%, var(--cream) 100%)' }}>

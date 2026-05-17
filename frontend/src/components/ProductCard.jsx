@@ -40,7 +40,7 @@ const ProductCard = ({ product }) => {
                 <div className="mt-auto">
                     <div className="d-flex align-items-baseline gap-2 mb-3">
                         <span className="fw-bold text-aura" style={{ fontSize: '1.1rem' }}>
-                            {product.price.toLocaleString('vi-VN')} ₫
+                            {product.price ? product.price.toLocaleString('vi-VN') : '0'} ₫
                         </span>
                         {product.originalPrice && (
                             <small className="text-decoration-line-through text-muted">
