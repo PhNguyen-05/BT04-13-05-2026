@@ -1,0 +1,13 @@
+const mongoose = require('mongoose');
+
+const promotionSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    description: { type: String },
+    image: { type: String },
+    discountText: { type: String },
+    link: { type: String, default: '/shop' },
+    isActive: { type: Boolean, default: true },
+    order: { type: Number, default: 0 },
+}, { timestamps: true });
+
+module.exports = mongoose.model('Promotion', promotionSchema);

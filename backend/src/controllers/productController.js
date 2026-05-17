@@ -2,11 +2,23 @@ const Product = require('../models/Product');
 
 const getProducts = async (req, res) => {
     try {
-        const { search, category, minPrice, maxPrice, sort } = req.query;
+        const {
+            search,
+            category,
+            minPrice,
+            maxPrice,
+            sort,
+            featured,
+            onSale,
+            inStock,
+        } = req.query;
         const filter = {};
 
         if (search) {
-            filter.name = { $regex: search, $options: 'i' };
+            filter.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } },
+            ];
         }
         if (category) {
             filter.category = category;
@@ -15,6 +27,15 @@ const getProducts = async (req, res) => {
             filter.price = {};
             if (minPrice) filter.price.$gte = Number(minPrice);
             if (maxPrice) filter.price.$lte = Number(maxPrice);
+        }
+        if (featured === 'true') {
+            filter.isFeatured = true;
+        }
+        if (onSale === 'true') {
+            filter.originalPrice = { $exists: true, $gt: 0 };
+        }
+        if (inStock === 'true') {
+            filter.stock = { $gt: 0 };
         }
 
         let query = Product.find(filter).populate('category');
@@ -27,6 +48,8 @@ const getProducts = async (req, res) => {
             query = query.sort({ price: 1 });
         } else if (sort === 'price_desc') {
             query = query.sort({ price: -1 });
+        } else {
+            query = query.sort({ createdAt: -1 });
         }
 
         const products = await query;
