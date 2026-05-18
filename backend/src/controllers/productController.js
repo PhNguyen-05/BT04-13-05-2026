@@ -12,6 +12,8 @@ const getProducts = async (req, res) => {
             featured,
             onSale,
             inStock,
+            page,
+            limit,
         } = req.query;
         const filter = {};
 
@@ -22,7 +24,6 @@ const getProducts = async (req, res) => {
             ];
         }
         if (category) {
-            // Convert string category ID to MongoDB ObjectId
             filter.category = new mongoose.Types.ObjectId(category);
         }
         if (minPrice || maxPrice) {
@@ -40,10 +41,16 @@ const getProducts = async (req, res) => {
             filter.stock = { $gt: 0 };
         }
 
+        const pageNumber = Math.max(1, Number(page) || 1);
+        const pageSize = Math.max(1, Number(limit) || 16);
+        const skip = (pageNumber - 1) * pageSize;
+
         let query = Product.find(filter).populate('category');
 
         if (sort === 'sold') {
             query = query.sort({ sold: -1 });
+        } else if (sort === 'views') {
+            query = query.sort({ views: -1 });
         } else if (sort === 'newest') {
             query = query.sort({ createdAt: -1 });
         } else if (sort === 'price_asc') {
@@ -54,8 +61,66 @@ const getProducts = async (req, res) => {
             query = query.sort({ createdAt: -1 });
         }
 
-        const products = await query;
-        res.json(products);
+        const total = await Product.countDocuments(filter);
+        const products = await query.skip(skip).limit(pageSize);
+
+        res.json({
+            data: products,
+            page: pageNumber,
+            limit: pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize),
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const getTopSellingProducts = async (req, res) => {
+    try {
+        const pageNumber = Math.max(1, Number(req.query.page) || 1);
+        const pageSize = Math.max(1, Number(req.query.limit) || 10);
+        const skip = (pageNumber - 1) * pageSize;
+
+        const total = await Product.countDocuments();
+        const products = await Product.find()
+            .populate('category')
+            .sort({ sold: -1 })
+            .skip(skip)
+            .limit(pageSize);
+
+        res.json({
+            data: products,
+            page: pageNumber,
+            limit: pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize),
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const getTopViewedProducts = async (req, res) => {
+    try {
+        const pageNumber = Math.max(1, Number(req.query.page) || 1);
+        const pageSize = Math.max(1, Number(req.query.limit) || 10);
+        const skip = (pageNumber - 1) * pageSize;
+
+        const total = await Product.countDocuments();
+        const products = await Product.find()
+            .populate('category')
+            .sort({ views: -1 })
+            .skip(skip)
+            .limit(pageSize);
+
+        res.json({
+            data: products,
+            page: pageNumber,
+            limit: pageSize,
+            total,
+            totalPages: Math.ceil(total / pageSize),
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -63,7 +128,12 @@ const getProducts = async (req, res) => {
 
 const getProductById = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id).populate('category');
+        const product = await Product.findByIdAndUpdate(
+            req.params.id,
+            { $inc: { views: 1 } },
+            { new: true }
+        ).populate('category');
+
         if (!product) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
         res.json(product);
     } catch (error) {
@@ -124,4 +194,12 @@ const createProduct = async (req, res) => {
     }
 };
 
-module.exports = { getProducts, getProductById, getProductLine, getSimilarProducts, createProduct };
+module.exports = {
+    getProducts,
+    getProductById,
+    getProductLine,
+    getSimilarProducts,
+    createProduct,
+    getTopSellingProducts,
+    getTopViewedProducts,
+};

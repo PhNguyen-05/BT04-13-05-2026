@@ -14,7 +14,7 @@ const Cart = () => {
         return (
             <Container className="py-5 text-center">
                 <h3>Vui lòng đăng nhập để xem giỏ hàng</h3>
-                <Button variant="dark" onClick={() => navigate('/login')} className="mt-3">
+                <Button className="btn-aura mt-3" onClick={() => navigate('/login')}>
                     Đăng nhập ngay
                 </Button>
             </Container>
@@ -28,7 +28,7 @@ const Cart = () => {
             <Container className="py-5 text-center">
                 <h2>Giỏ hàng của bạn đang trống</h2>
                 <p className="text-muted">Hãy thêm một số sản phẩm son môi yêu thích</p>
-                <Button as={Link} to="/shop" variant="dark" size="lg" className="rounded-pill">
+                <Button as={Link} to="/shop" className="btn-aura btn-lg">
                     Khám phá Cửa hàng
                 </Button>
             </Container>
@@ -123,9 +123,8 @@ const Cart = () => {
                             </div>
 
                             <Button 
-                                variant="dark" 
+                                className="btn-aura w-100 py-3 mb-3"
                                 size="lg" 
-                                className="w-100 rounded-pill py-3 mb-3"
                                 onClick={() => navigate('/checkout')}
                             >
                                 Tiến hành thanh toán
@@ -134,8 +133,7 @@ const Cart = () => {
                             <Button 
                                 as={Link} 
                                 to="/shop" 
-                                variant="outline-secondary" 
-                                className="w-100 rounded-pill"
+                                className="btn-aura-outline w-100"
                             >
                                 Tiếp tục mua sắm
                             </Button>

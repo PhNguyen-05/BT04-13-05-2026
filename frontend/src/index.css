@@ -7,7 +7,14 @@
   --lavender: #e8ddf5;
   --lavender-deep: #d4c4eb;
   --peach: #ffe8dc;
-  --mint: #dff5ee;
+  --mint: #eef0f4;
+  --mauve: #6b5b6e;
+  --mauve-light: #f3eff5;
+  --mauve-border: #d4ccd8;
+  --badge-in-bg: #f0ebe8;
+  --badge-in-text: #5c4f52;
+  --badge-out-bg: #faf0f3;
+  --badge-out-text: #9a6b7a;
   --cream: #fffaf8;
   --cream-warm: #fff5f0;
   --white: #ffffff;
@@ -172,30 +179,57 @@ h1, h2, h3, h4, .font-display {
   border-radius: var(--radius-pill);
   padding: 0.65rem 1.75rem;
   transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(232, 145, 168, 0.35);
+  box-shadow: 0 6px 20px rgba(107, 91, 110, 0.25);
 }
 
 .btn-aura:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(232, 145, 168, 0.45);
+  box-shadow: 0 10px 28px rgba(107, 91, 110, 0.35);
   color: white !important;
 }
 
 .btn-aura-outline {
-  background: transparent;
-  border: 2px solid var(--rose);
-  color: var(--rose-deep) !important;
-  font-weight: 700;
+  background: var(--mauve-light);
+  border: 1.5px solid #a89bad;
+  color: var(--text-heading) !important;
+  font-weight: 600;
   border-radius: var(--radius-pill);
   padding: 0.5rem 1.5rem;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(90, 69, 80, 0.06);
 }
 
 .btn-aura-outline:hover {
-  background: var(--blush);
-  border-color: var(--rose-deep);
-  color: var(--rose-deep) !important;
+  background: #ece7f0;
+  border-color: #8f7f96;
+  color: var(--text-heading) !important;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(90, 69, 80, 0.1);
+}
+
+.badge-stock-in {
+  background: var(--badge-in-bg) !important;
+  color: var(--badge-in-text) !important;
+  border: 1px solid var(--mauve-border);
+  font-weight: 600;
+}
+
+.badge-stock-out {
+  background: var(--badge-out-bg) !important;
+  color: var(--badge-out-text) !important;
+  border: 1px solid rgba(232, 145, 168, 0.35);
+  font-weight: 600;
+}
+
+.aura-filter-panel .form-check-input:checked {
+  background-color: var(--mauve);
+  border-color: var(--mauve);
+}
+
+.aura-filter-panel .form-check-label {
+  color: var(--text-heading);
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
 .btn-aura-ghost {
@@ -209,7 +243,51 @@ h1, h2, h3, h4, .font-display {
 
 .btn-aura-ghost:hover {
   background: var(--blush);
-  border-color: var(--rose);
+  border-color: var(--mauve);
+}
+
+.btn-primary {
+  background: var(--gradient-btn) !important;
+  border-color: transparent !important;
+  color: white !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background: #8f7fa8 !important;
+  border-color: transparent !important;
+  color: white !important;
+}
+
+.btn-outline-primary {
+  color: var(--text-heading) !important;
+  background-color: transparent !important;
+  border-color: #a89bad !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+  background-color: #ece7f0 !important;
+  border-color: #8f7f96 !important;
+  color: var(--text-heading) !important;
+}
+
+.btn-link,
+.btn-link:hover,
+.btn-link:focus,
+.btn-link:active {
+  color: var(--rose-deep) !important;
+  text-decoration: none !important;
+}
+
+.btn-link:hover {
+  color: var(--text-heading) !important;
+}
+
+.text-primary {
+  color: var(--rose-deep) !important;
 }
 
 /* ——— Footer ——— */

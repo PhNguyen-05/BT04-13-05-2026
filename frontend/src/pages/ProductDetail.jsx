@@ -232,11 +232,7 @@ const ProductDetail = () => {
 
                     <div className="d-flex flex-wrap gap-2 mb-4">
                         <Badge
-                            className="rounded-pill px-3 py-2"
-                            style={{
-                                background: stock > 0 ? 'var(--mint)' : 'var(--blush-strong)',
-                                color: stock > 0 ? '#3d6b5c' : 'var(--rose-deep)',
-                            }}
+                            className={`rounded-pill px-3 py-2 ${stock > 0 ? 'badge-stock-in' : 'badge-stock-out'}`}
                         >
                             {stock > 0 ? `Còn ${stock} sản phẩm` : 'Hết hàng'}
                         </Badge>

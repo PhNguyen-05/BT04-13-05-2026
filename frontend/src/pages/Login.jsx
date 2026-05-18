@@ -260,13 +260,9 @@ const Login = () => {
                             </Form.Group>
 
                             <div className="text-end mb-4">
-                                <button
-                                    type="button"
-                                    className="btn btn-link link-aura p-0 small"
-                                    onClick={() => alert('Tính năng quên mật khẩu đang được phát triển.')}
-                                >
+                                <Link to="/forgot-password" className="link-aura small">
                                     Quên mật khẩu?
-                                </button>
+                                </Link>
                             </div>
 
                             <Button type="submit" className="btn-aura w-100 py-3 mb-3" disabled={loading}>

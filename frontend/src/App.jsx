@@ -12,8 +12,10 @@ import ArticleDetail from './pages/ArticleDetail';
 import Cart from './pages/Cart';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
-const AUTH_PATHS = ['/login', '/register'];
+const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'];
 
 function AppLayout() {
     const location = useLocation();
@@ -33,6 +35,8 @@ function AppLayout() {
                     <Route path="/article/:id" element={<ArticleDetail />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                 </Routes>
             </main>
 

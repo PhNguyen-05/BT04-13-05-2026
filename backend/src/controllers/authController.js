@@ -1,6 +1,8 @@
+const crypto = require('crypto');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { sendPasswordResetEmail, isEmailConfigured } = require('../services/emailService');
 
 const register = async (req, res) => {
     try {
@@ -40,4 +42,85 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { register, login };
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: 'Vui lòng nhập email' });
+
+        if (!isEmailConfigured()) {
+            return res.status(503).json({
+                message: 'Hệ thống email chưa được cấu hình. Vui lòng liên hệ quản trị viên.',
+            });
+        }
+
+        const user = await User.findOne({
+            email: new RegExp(`^${email.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'),
+        });
+        const genericMessage =
+            'Chúng tôi đã gửi link đặt lại mật khẩu đến email của bạn. Vui lòng kiểm tra hộp thư (và thư mục Spam).';
+
+        if (!user) {
+            return res.json({ message: genericMessage });
+        }
+
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + 60 * 60 * 1000;
+        await user.save({ validateBeforeSave: false });
+
+        const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+        const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+        try {
+            await sendPasswordResetEmail(user.email, resetUrl);
+        } catch (mailError) {
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+            await user.save({ validateBeforeSave: false });
+
+            console.error('[Aura Lips] Gửi email thất bại:', mailError.message);
+            return res.status(503).json({
+                message: 'Không thể gửi email. Kiểm tra cấu hình SMTP trong file .env.',
+            });
+        }
+
+        res.json({ message: genericMessage });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const resetPassword = async (req, res) => {
+    try {
+        const { token, password } = req.body;
+        if (!token || !password) {
+            return res.status(400).json({ message: 'Thiếu mã xác nhận hoặc mật khẩu mới' });
+        }
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Mật khẩu phải có ít nhất 6 ký tự' });
+        }
+
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn' });
+        }
+
+        user.password = password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.json({ message: 'Đặt lại mật khẩu thành công. Bạn có thể đăng nhập ngay.' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { register, login, forgotPassword, resetPassword };

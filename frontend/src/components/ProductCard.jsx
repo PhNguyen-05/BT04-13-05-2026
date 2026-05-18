@@ -68,11 +68,7 @@ const ProductCard = ({ product }) => {
 
                     <div className="d-flex justify-content-between align-items-center">
                         <Badge
-                            className="rounded-pill px-3 py-2"
-                            style={{
-                                background: product.stock > 0 ? 'var(--mint)' : 'var(--blush-strong)',
-                                color: product.stock > 0 ? '#3d6b5c' : 'var(--rose-deep)',
-                            }}
+                            className={`rounded-pill px-3 py-2 ${product.stock > 0 ? 'badge-stock-in' : 'badge-stock-out'}`}
                         >
                             {product.stock > 0 ? `Còn ${product.stock}` : 'Hết hàng'}
                         </Badge>

@@ -87,6 +87,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const connectDB = require('./config/database');
+const { verifyEmailConnection } = require('./services/emailService');
 
 const app = express();
 
@@ -121,7 +122,8 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
     console.log(`✅ Server Aura Lips chạy tại: http://localhost:${PORT}`);
     console.log(`📁 Static files được serve từ thư mục: /public`);
+    await verifyEmailConnection();
 });

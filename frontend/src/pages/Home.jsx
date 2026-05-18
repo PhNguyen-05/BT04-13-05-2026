@@ -5,6 +5,7 @@ import ProductCard from '../components/ProductCard';
 import ArticleCard from '../components/ArticleCard';
 import MemberWelcome from '../components/MemberWelcome';
 import CategoryStrip from '../components/CategoryStrip';
+import HorizontalProductPager from '../components/HorizontalProductPager';
 import api from '../services/api.service';
 import { AuthContext } from '../context/AuthContext';
 import { resolveImageUrl } from '../utils/imageUrl';
@@ -15,6 +16,7 @@ const Home = () => {
     const [promoProducts, setPromoProducts] = useState([]);
     const [featured, setFeatured] = useState([]);
     const [bestSellers, setBestSellers] = useState([]);
+    const [mostViewed, setMostViewed] = useState([]);
     const [newProducts, setNewProducts] = useState([]);
     const [articles, setArticles] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -29,24 +31,27 @@ const Home = () => {
                     saleRes,
                     featuredRes,
                     bestRes,
+                    viewedRes,
                     newRes,
                     articleRes,
                 ] = await Promise.all([
                     api.get('/promotions'),
                     api.get('/categories'),
-                    api.get('/products?onSale=true'),
-                    api.get('/products?featured=true'),
-                    api.get('/products?sort=sold'),
-                    api.get('/products?sort=newest'),
+                    api.get('/products?onSale=true&limit=4'),
+                    api.get('/products?featured=true&limit=4'),
+                    api.get('/products?sort=sold&limit=10'),
+                    api.get('/products?sort=views&limit=10'),
+                    api.get('/products?sort=newest&limit=4'),
                     api.get('/articles?featured=true&limit=3'),
                 ]);
 
                 setPromotions(promoRes.data || []);
                 setCategories(categoryRes.data || []);
-                setPromoProducts((saleRes.data || []).slice(0, 4));
-                setFeatured((featuredRes.data || []).slice(0, 4));
-                setBestSellers((bestRes.data || []).slice(0, 4));
-                setNewProducts((newRes.data || []).slice(0, 4));
+                setPromoProducts((saleRes.data?.data || []).slice(0, 4));
+                setFeatured((featuredRes.data?.data || []).slice(0, 4));
+                setBestSellers(bestRes.data?.data || []);
+                setMostViewed(viewedRes.data?.data || []);
+                setNewProducts((newRes.data?.data || []).slice(0, 4));
                 const articlesData = articleRes.data || [];
                 setArticles(
                     articlesData.length
@@ -225,16 +230,19 @@ const Home = () => {
                 </Container>
             </section>
 
-            {/* Bán chạy */}
-            <section className="aura-section">
-                <Container>
-                    <header className="aura-section-header">
-                        <span className="aura-section-tag">🔥 Bán chạy</span>
-                        <h2 className="aura-section-title font-display">Bán chạy nhất</h2>
-                    </header>
-                    {renderProducts(bestSellers, 'Đang cập nhật...')}
-                </Container>
-            </section>
+            <HorizontalProductPager
+                title="🔥 Bán chạy"
+                subtitle="Top 10 sản phẩm bán chạy nhất"
+                products={bestSellers}
+                viewAllLink="/shop?sort=sold"
+            />
+
+            <HorizontalProductPager
+                title="👁️ Xem nhiều"
+                subtitle="Top 10 sản phẩm được xem nhiều nhất"
+                products={mostViewed}
+                viewAllLink="/shop?sort=views"
+            />
 
             {/* Mới nhất */}
             <section className="aura-section aura-section-lavender">

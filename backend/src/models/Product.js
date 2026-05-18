@@ -19,7 +19,8 @@ const productSchema = new mongoose.Schema({
     stock: { type: Number, default: 100 },
     category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     isFeatured: { type: Boolean, default: false },
-    sold: { type: Number, default: 0 }
+    sold: { type: Number, default: 0 },
+    views: { type: Number, default: 0 }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

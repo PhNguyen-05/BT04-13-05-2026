@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
@@ -18,6 +18,12 @@ const Shop = () => {
     const [inStock, setInStock] = useState(searchParams.get('inStock') === 'true');
     const [featured, setFeatured] = useState(searchParams.get('featured') === 'true');
     const [loading, setLoading] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [page, setPage] = useState(1);
+    const [limit] = useState(12);
+    const [total, setTotal] = useState(0);
+    const [hasMore, setHasMore] = useState(false);
+    const observer = useRef();
 
     useEffect(() => {
         api.get('/categories')
@@ -32,12 +38,24 @@ const Shop = () => {
     }, [searchParams]);
 
     useEffect(() => {
-        const timer = setTimeout(fetchProducts, 400);
-        return () => clearTimeout(timer);
+        setProducts([]);
+        setPage(1);
+        setTotal(0);
+        setHasMore(false);
     }, [search, category, minPrice, maxPrice, sort, onSale, inStock, featured]);
 
-    const fetchProducts = async () => {
-        setLoading(true);
+    useEffect(() => {
+        const timer = setTimeout(() => fetchProducts(page), 400);
+        return () => clearTimeout(timer);
+    }, [page, search, category, minPrice, maxPrice, sort, onSale, inStock, featured]);
+
+    const fetchProducts = async (currentPage = 1) => {
+        if (currentPage === 1) {
+            setLoading(true);
+        } else {
+            setLoadingMore(true);
+        }
+
         try {
             const params = new URLSearchParams();
             if (search) params.append('search', search);
@@ -48,15 +66,46 @@ const Shop = () => {
             if (onSale) params.append('onSale', 'true');
             if (inStock) params.append('inStock', 'true');
             if (featured) params.append('featured', 'true');
+            params.append('page', currentPage);
+            params.append('limit', limit);
 
             const res = await api.get(`/products?${params.toString()}`);
-            setProducts(res.data);
+            const responseData = res.data || {};
+            const items = responseData.data || [];
+            setProducts((prev) => (currentPage === 1 ? items : [...prev, ...items]));
+            setTotal(responseData.total || 0);
+            setHasMore(currentPage < (responseData.totalPages || 0));
         } catch {
             setProducts([]);
+            setHasMore(false);
         } finally {
-            setLoading(false);
+            if (currentPage === 1) {
+                setLoading(false);
+            } else {
+                setLoadingMore(false);
+            }
         }
     };
+
+    const lastProductRef = useCallback(
+        (node) => {
+            if (loading || loadingMore) return;
+            if (observer.current) observer.current.disconnect();
+            if (!hasMore) return;
+
+            observer.current = new IntersectionObserver(
+                (entries) => {
+                    if (entries[0].isIntersecting) {
+                        setPage((prevPage) => prevPage + 1);
+                    }
+                },
+                { rootMargin: '150px' }
+            );
+
+            if (node) observer.current.observe(node);
+        },
+        [loading, loadingMore, hasMore]
+    );
 
     const resetFilters = () => {
         setSearch('');
@@ -134,6 +183,7 @@ const Shop = () => {
                             <option value="">Mặc định</option>
                             <option value="newest">Mới nhất</option>
                             <option value="sold">Bán chạy</option>
+                            <option value="views">Xem nhiều nhất</option>
                             <option value="price_asc">Giá tăng dần</option>
                             <option value="price_desc">Giá giảm dần</option>
                         </Form.Select>
@@ -182,13 +232,24 @@ const Shop = () => {
             ) : products.length === 0 ? (
                 <p className="text-center text-muted py-5">Không tìm thấy sản phẩm phù hợp.</p>
             ) : (
-                <Row className="g-4">
-                    {products.map((product) => (
-                        <Col key={product._id} xl={3} lg={4} sm={6}>
-                            <ProductCard product={product} />
-                        </Col>
-                    ))}
-                </Row>
+                <>
+                    <Row className="g-4">
+                        {products.map((product, index) => (
+                            <Col key={product._id} xl={3} lg={4} sm={6}>
+                                <div ref={index === products.length - 1 ? lastProductRef : null}>
+                                    <ProductCard product={product} />
+                                </div>
+                            </Col>
+                        ))}
+                    </Row>
+                    <div className="text-center py-4">
+                        {loadingMore && <p>Đang tải thêm sản phẩm...</p>}
+                        {!loadingMore && hasMore && <p className="text-muted">Kéo xuống để tải thêm sản phẩm...</p>}
+                        {!loadingMore && !hasMore && products.length > 0 && (
+                            <p className="text-muted">Đã tải hết sản phẩm.</p>
+                        )}
+                    </div>
+                </>
             )}
         </Container>
     );
