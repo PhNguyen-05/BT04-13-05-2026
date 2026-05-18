@@ -9,6 +9,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/thumbs';
 import api from '../services/api.service';
 import ArticleCard from '../components/ArticleCard';
+import { resolveImageList } from '../utils/imageUrl';
 
 const ArticleDetail = () => {
     const { id } = useParams();
@@ -39,7 +40,7 @@ const ArticleDetail = () => {
         );
     }
 
-    const images = article.images?.length ? article.images : ['/logo.png'];
+    const images = resolveImageList(article.images?.length ? article.images : ['/logo.png']);
     const typeLabel = article.type === 'news' ? 'Tin tức' : 'Bài viết';
 
     return (

@@ -84,6 +84,7 @@
 
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const connectDB = require('./config/database');
 
@@ -94,9 +95,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 🔥 QUAN TRỌNG: Serve file tĩnh (ảnh sản phẩm)
-app.use(express.static('public'));                    // Cho phép truy cập /3ce/..., /romand/...
-app.use('/public', express.static('public'));         // Backup nếu cần
+// Ảnh nằm trong frontend/public (Vite cũng serve thư mục này khi dev)
+const staticDir = path.join(__dirname, '../../frontend/public');
+app.use(express.static(staticDir));
+app.use('/public', express.static(staticDir));
 
 // Kết nối Database
 connectDB();

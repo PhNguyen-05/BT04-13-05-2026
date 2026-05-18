@@ -14,6 +14,14 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
+      // Ảnh tĩnh: fallback qua backend nếu Vite không tìm thấy file
+      '/3ce': { target: 'http://localhost:3000', changeOrigin: true },
+      '/romand': { target: 'http://localhost:3000', changeOrigin: true },
+      '/intoyou': { target: 'http://localhost:3000', changeOrigin: true },
+      '/merzy': { target: 'http://localhost:3000', changeOrigin: true },
+      '/bbia': { target: 'http://localhost:3000', changeOrigin: true },
+      '/product': { target: 'http://localhost:3000', changeOrigin: true },
+      '/login': { target: 'http://localhost:3000', changeOrigin: true },
     },
   },
 })

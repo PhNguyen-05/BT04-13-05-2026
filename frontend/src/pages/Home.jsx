@@ -7,6 +7,7 @@ import MemberWelcome from '../components/MemberWelcome';
 import CategoryStrip from '../components/CategoryStrip';
 import api from '../services/api.service';
 import { AuthContext } from '../context/AuthContext';
+import { resolveImageUrl } from '../utils/imageUrl';
 
 const Home = () => {
     const { user } = useContext(AuthContext);
@@ -88,7 +89,7 @@ const Home = () => {
 
     const heroSlides = promotions.length > 0
         ? promotions.map((p) => ({
-            image: p.image || '/logo.png',
+            image: resolveImageUrl(p.image, resolveImageUrl('/product/1.jpg')),
             badge: p.discountText || 'Khuyến mãi',
             title: p.title,
             subtitle: p.description,
@@ -96,7 +97,7 @@ const Home = () => {
         }))
         : [
             {
-                image: '/product/1.jpg',
+                image: resolveImageUrl('/product/1.jpg'),
                 badge: '✨ Sale',
                 title: 'Ưu đãi son môi',
                 subtitle: 'Giảm đến 50% — Số lượng có hạn',
@@ -175,7 +176,7 @@ const Home = () => {
                                     style={{
                                         width: 120,
                                         height: 80,
-                                        backgroundImage: `url(${cat.image || `/${(cat.slug || cat.name || '').toString().toLowerCase()}/bìa.jpg`})`,
+                                        backgroundImage: `url("${resolveImageUrl(cat.image || `/${(cat.slug || cat.name || '').toString().toLowerCase()}/bia.jpg`)}")`,
                                         backgroundSize: 'cover',
                                         backgroundPosition: 'center',
                                         borderRadius: 8,

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Row, Col } from 'react-bootstrap';
+import { resolveImageUrl } from '../utils/imageUrl';
 
 const CategoryStrip = ({ categories, limit = 5 }) => {
     if (!categories?.length) return null;
@@ -7,9 +8,9 @@ const CategoryStrip = ({ categories, limit = 5 }) => {
     const display = categories.slice(0, limit);
 
     const getCover = (cat) => {
-        if (cat.image) return cat.image;
+        if (cat.image) return resolveImageUrl(cat.image);
         const folder = (cat.slug || cat.name || '').toString().toLowerCase();
-        return `/${folder}/bìa.jpg`;
+        return resolveImageUrl(`/${folder}/bia.jpg`);
     };
 
     return (

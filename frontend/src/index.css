@@ -677,6 +677,132 @@ h1, h2, h3, h4, .font-display {
   line-height: 1;
 }
 
+/* Product detail — shade picker (màu son) */
+.aura-shade-picker {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+}
+
+@media (max-width: 992px) {
+  .aura-shade-picker {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .aura-shade-picker {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.aura-shade-item {
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #fff;
+  min-height: 72px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aura-shade-item:hover {
+  border-color: #bbb;
+}
+
+.aura-shade-item.active {
+  border: 2px solid #1a1a1a;
+  box-shadow: 0 0 0 1px #1a1a1a;
+}
+
+.aura-shade-item-visual {
+  flex: 1;
+  min-width: 0;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aura-shade-item-img {
+  width: 100%;
+  height: 72px;
+  object-fit: cover;
+  display: block;
+}
+
+.aura-shade-item-no {
+  flex: 0 0 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #333;
+  border-left: 1px solid #e5e5e5;
+}
+
+.aura-shade-item.active .aura-shade-item-no {
+  background: #8b2942;
+  color: #fff;
+  border-left-color: #8b2942;
+}
+
+.aura-shade-qty {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.aura-shade-qty-btn {
+  width: 48px;
+  height: 48px;
+  border: none;
+  background: #f5f5f5;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.aura-shade-qty-btn:hover:not(:disabled) {
+  background: #ebebeb;
+}
+
+.aura-shade-qty-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.aura-shade-qty-value {
+  min-width: 56px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-left: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  padding: 0 0.75rem;
+  line-height: 48px;
+}
+
+.product-detail-main-img {
+  max-height: 480px;
+  object-fit: contain;
+  background: var(--blush);
+}
+
+.product-detail-thumb-img {
+  height: 80px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
 /* Brand category cards */
 .aura-category-card {
   background: var(--white);

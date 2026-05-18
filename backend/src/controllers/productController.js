@@ -71,6 +71,32 @@ const getProductById = async (req, res) => {
     }
 };
 
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** Tên dòng sản phẩm (bỏ số màu cuối): "Romand Juicy 01" → "Romand Juicy" */
+const getLineKey = (name) => name.replace(/\s+0?\d+\s*$/i, '').trim();
+
+const getProductLine = async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id).populate('category');
+        if (!product) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+
+        const lineKey = getLineKey(product.name);
+        const pattern = new RegExp(`^${escapeRegex(lineKey)}\\s+0?\\d+\\s*$`, 'i');
+
+        const line = await Product.find({
+            category: product.category,
+            name: pattern,
+        })
+            .populate('category')
+            .sort({ name: 1 });
+
+        res.json(line.length > 0 ? line : [product]);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const getSimilarProducts = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
@@ -98,4 +124,4 @@ const createProduct = async (req, res) => {
     }
 };
 
-module.exports = { getProducts, getProductById, getSimilarProducts, createProduct };
+module.exports = { getProducts, getProductById, getProductLine, getSimilarProducts, createProduct };

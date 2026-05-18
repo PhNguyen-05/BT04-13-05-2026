@@ -3,6 +3,7 @@ import { Container, Row, Col, Button, Card, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
+import { resolveImageUrl } from '../utils/imageUrl';
 
 const Cart = () => {
     const { cart, loading, removeFromCart, updateCartQuantity, getTotalPrice } = useContext(CartContext);
@@ -43,13 +44,13 @@ const Cart = () => {
             <Row>
                 {/* Danh sách sản phẩm */}
                 <Col lg={8}>
-                    {cart.items.map((item) => (
-                        <Card key={item.product?._id} className="mb-4 shadow-sm border-0">
+                    {cart.items.map((item, index) => (
+                        <Card key={`${item.product?._id}-${item.variant || 'default'}`} className="mb-4 shadow-sm border-0">
                             <Card.Body>
                                 <Row className="align-items-center">
                                     <Col md={3}>
                                         <img 
-                                            src={item.product?.images?.[0] || 'https://via.placeholder.com/150'} 
+                                            src={resolveImageUrl(item.product?.images?.[0])} 
                                             alt={item.product?.name}
                                             className="img-fluid rounded"
                                             style={{ height: '120px', objectFit: 'cover' }}
@@ -58,6 +59,11 @@ const Cart = () => {
                                     <Col md={5}>
                                         <h5>{item.product?.name}</h5>
                                         {item.color && <p className="text-muted small">Màu: {item.color}</p>}
+                                        {item.variant && (
+                                            <p className="text-muted small">
+                                                Biến thể: {item.product?.variants?.find(v => v._id === item.variant)?.colorName || item.color || 'N/A'}
+                                            </p>
+                                        )}
                                     </Col>
                                     <Col md={2} className="text-center">
                                         <h6 className="text-danger fw-bold">
@@ -68,7 +74,7 @@ const Cart = () => {
                                                 variant="outline-secondary"
                                                 size="sm"
                                                 disabled={item.quantity <= 1}
-                                                onClick={() => updateCartQuantity(item.product?._id, item.quantity - 1)}
+                                                onClick={() => updateCartQuantity(item.product?._id, item.quantity - 1, item.variant)}
                                             >
                                                 −
                                             </Button>
@@ -77,7 +83,7 @@ const Cart = () => {
                                                 variant="outline-secondary"
                                                 size="sm"
                                                 disabled={item.quantity >= (item.product?.stock || 1)}
-                                                onClick={() => updateCartQuantity(item.product?._id, item.quantity + 1)}
+                                                onClick={() => updateCartQuantity(item.product?._id, item.quantity + 1, item.variant)}
                                             >
                                                 +
                                             </Button>
@@ -87,7 +93,7 @@ const Cart = () => {
                                         <Button 
                                             variant="outline-danger" 
                                             size="sm"
-                                            onClick={() => removeFromCart(item.product?._id)}
+                                            onClick={() => removeFromCart(item.product?._id, item.variant)}
                                         >
                                             <i className="bi bi-trash"></i>
                                         </Button>

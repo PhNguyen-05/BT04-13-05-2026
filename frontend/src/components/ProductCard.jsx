@@ -1,30 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, Button, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-
-const FALLBACK_IMG = 'https://images.unsplash.com/photo-1586495778270-3263b471a0db?w=400&q=80';
+import { getProductImageCandidates, FALLBACK_IMG } from '../utils/imageUrl';
 
 const ProductCard = ({ product }) => {
-    const [imgSrc, setImgSrc] = useState(product.images?.[0] || FALLBACK_IMG);
+    const candidates = useMemo(() => getProductImageCandidates(product), [product]);
+    const [attempt, setAttempt] = useState(0);
+
+    useEffect(() => {
+        setAttempt(0);
+    }, [product._id, product.images, product.name]);
+
+    const imgSrc =
+        attempt >= candidates.length ? FALLBACK_IMG : candidates[attempt];
 
     const handleImgError = () => {
-        if (imgSrc.endsWith('.jpg')) {
-            setImgSrc(imgSrc.replace(/\.jpg$/, '.webp'));
-        } else {
-            setImgSrc(FALLBACK_IMG);
-        }
+        setAttempt((i) => (i < candidates.length ? i + 1 : i));
     };
 
     return (
         <Card className="h-100 product-card border-0 overflow-hidden">
             <div className="position-relative">
-                <Card.Img
-                    variant="top"
+                <img
                     src={imgSrc}
                     onError={handleImgError}
-                    className="product-image"
+                    className="card-img-top product-image"
                     alt={product.name}
-                    style={{ height: '260px', objectFit: 'cover' }}
+                    style={{ height: '260px', objectFit: 'cover', width: '100%' }}
+                    loading="lazy"
                 />
                 {product.originalPrice && (
                     <Badge

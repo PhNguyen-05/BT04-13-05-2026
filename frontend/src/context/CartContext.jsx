@@ -30,9 +30,9 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    const addToCart = async (productId, quantity = 1) => {
+    const addToCart = async (productId, quantity = 1, variantId = null) => {
         try {
-            const res = await api.post('/cart/add', { productId, quantity });
+            const res = await api.post('/cart/add', { productId, quantity, variantId });
             setCart(res.data);
             return true;
         } catch (error) {
@@ -41,10 +41,13 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    const removeFromCart = async (productId) => {
+    const removeFromCart = async (productId, variantId = null) => {
         if (!productId) return false;
         try {
-            const res = await api.delete(`/cart/remove/${productId}`);
+            const url = variantId 
+                ? `/cart/remove/${productId}/${variantId}` 
+                : `/cart/remove/${productId}`;
+            const res = await api.delete(url);
             setCart(res.data);
             return true;
         } catch (error) {
@@ -53,10 +56,10 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    const updateCartQuantity = async (productId, quantity) => {
+    const updateCartQuantity = async (productId, quantity, variantId = null) => {
         if (!productId) return false;
         try {
-            const res = await api.put('/cart/update', { productId, quantity });
+            const res = await api.put('/cart/update', { productId, quantity, variantId });
             setCart(res.data);
             return true;
         } catch (error) {

@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Button, Badge } from 'react-bootstrap';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -9,8 +9,15 @@ import 'swiper/css/pagination';
 import 'swiper/css/thumbs';
 import api from '../services/api.service';
 import ProductCard from '../components/ProductCard';
+import ShadePicker from '../components/ShadePicker';
 import { AuthContext } from '../context/AuthContext';
 import { CartContext } from '../context/CartContext';
+import { resolveImageList } from '../utils/imageUrl';
+
+const getShadeLabel = (name, index) => {
+    const match = name?.match(/(\d+)\s*$/);
+    return match ? match[1].padStart(2, '0') : String(index + 1).padStart(2, '0');
+};
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -18,22 +25,39 @@ const ProductDetail = () => {
     const { user } = useContext(AuthContext);
     const { addToCart } = useContext(CartContext);
 
-    const [product, setProduct] = useState(null);
+    const [lineProducts, setLineProducts] = useState([]);
+    const [activeProduct, setActiveProduct] = useState(null);
     const [similar, setSimilar] = useState([]);
     const [quantity, setQuantity] = useState(1);
     const [loading, setLoading] = useState(false);
     const [thumbsSwiper, setThumbsSwiper] = useState(null);
+    const [selectedVariantId, setSelectedVariantId] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [productRes, similarRes] = await Promise.all([
+                const [productRes, lineRes, similarRes] = await Promise.all([
                     api.get(`/products/${id}`),
+                    api.get(`/products/${id}/line`),
                     api.get(`/products/${id}/similar`),
                 ]);
-                setProduct(productRes.data);
+
+                const product = productRes.data;
+                const line = lineRes.data?.length ? lineRes.data : [product];
+                const current =
+                    line.find((p) => p._id === id) || product;
+
+                setLineProducts(line);
+                setActiveProduct(current);
                 setSimilar(similarRes.data);
+
+                if (current.variants?.length) {
+                    setSelectedVariantId(current.variants[0]._id);
+                } else {
+                    setSelectedVariantId(null);
+                }
                 setQuantity(1);
+                setThumbsSwiper(null);
             } catch (err) {
                 console.error(err);
             }
@@ -41,26 +65,92 @@ const ProductDetail = () => {
         fetchData();
     }, [id]);
 
+    const selectedVariant = useMemo(
+        () => activeProduct?.variants?.find((v) => v._id === selectedVariantId) || null,
+        [activeProduct, selectedVariantId]
+    );
+
+    const pickerItems = useMemo(() => {
+        if (!activeProduct) return [];
+
+        if (activeProduct.variants?.length) {
+            return activeProduct.variants.map((v, index) => ({
+                id: v._id,
+                label: getShadeLabel(v.colorName || v.color, index),
+                image: v.images?.[0] || activeProduct.images?.[0],
+                name: v.colorName || v.color,
+                type: 'variant',
+            }));
+        }
+
+        return lineProducts.map((p, index) => ({
+            id: p._id,
+            label: getShadeLabel(p.name, index),
+            image: p.images?.[0],
+            name: p.name,
+            type: 'product',
+        }));
+    }, [activeProduct, lineProducts]);
+
+    const selectedPickerId = useMemo(() => {
+        if (activeProduct?.variants?.length) return selectedVariantId;
+        return activeProduct?._id;
+    }, [activeProduct, selectedVariantId]);
+
+    const images = useMemo(() => {
+        if (selectedVariant?.images?.length) {
+            return resolveImageList(selectedVariant.images);
+        }
+        return resolveImageList(activeProduct?.images);
+    }, [activeProduct, selectedVariant]);
+
+    const stock = selectedVariant?.stock ?? activeProduct?.stock ?? 0;
+
+    const handlePickerSelect = useCallback(
+        (pickerId) => {
+            if (activeProduct?.variants?.length) {
+                setSelectedVariantId(pickerId);
+                setQuantity(1);
+                setThumbsSwiper(null);
+                return;
+            }
+
+            const next = lineProducts.find((p) => p._id === pickerId);
+            if (!next) return;
+
+            setActiveProduct(next);
+            setSelectedVariantId(null);
+            setQuantity(1);
+            setThumbsSwiper(null);
+            window.history.replaceState(null, '', `/product/${next._id}`);
+        },
+        [activeProduct, lineProducts]
+    );
+
     const handleAddToCart = async () => {
         if (!user) {
             alert('Vui lòng đăng nhập để thêm vào giỏ hàng');
             navigate('/login');
             return;
         }
-        if (product.stock <= 0) {
+        if (stock <= 0) {
             alert('Sản phẩm đã hết hàng!');
             return;
         }
 
         setLoading(true);
-        const success = await addToCart(id, quantity);
+        const success = await addToCart(
+            activeProduct._id,
+            quantity,
+            selectedVariantId || null
+        );
         if (success) {
             alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
         }
         setLoading(false);
     };
 
-    if (!product) {
+    if (!activeProduct) {
         return (
             <Container className="py-5 text-center">
                 <p>Đang tải thông tin sản phẩm...</p>
@@ -68,9 +158,7 @@ const ProductDetail = () => {
         );
     }
 
-    const images = product.images?.length
-        ? product.images
-        : ['https://images.unsplash.com/photo-1586495778270-3263b471a0db?w=600'];
+    const showShadePicker = pickerItems.length > 1;
 
     return (
         <Container className="py-5">
@@ -82,24 +170,20 @@ const ProductDetail = () => {
             <Row className="g-5">
                 <Col lg={6}>
                     <Swiper
+                        key={`main-${activeProduct._id}-${selectedVariantId || 'default'}`}
                         modules={[Navigation, Pagination, Autoplay, Thumbs]}
                         navigation
                         pagination={{ clickable: true }}
                         autoplay={images.length > 1 ? { delay: 5000 } : false}
-                        thumbs={{ swiper: thumbsSwiper }}
-                        className="rounded-4 overflow-hidden shadow-sm"
+                        thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                        className="rounded-4 overflow-hidden shadow-sm product-main-swiper"
                     >
                         {images.map((img, index) => (
-                            <SwiperSlide key={index}>
+                            <SwiperSlide key={`${img}-${index}`}>
                                 <img
                                     src={img}
-                                    alt={product.name}
-                                    className="w-100"
-                                    style={{
-                                        maxHeight: '480px',
-                                        objectFit: 'contain',
-                                        background: 'var(--blush)',
-                                    }}
+                                    alt={activeProduct.name}
+                                    className="w-100 product-detail-main-img"
                                 />
                             </SwiperSlide>
                         ))}
@@ -107,20 +191,20 @@ const ProductDetail = () => {
 
                     {images.length > 1 && (
                         <Swiper
+                            key={`thumbs-${activeProduct._id}-${selectedVariantId || 'default'}`}
                             onSwiper={setThumbsSwiper}
                             spaceBetween={10}
-                            slidesPerView={4}
+                            slidesPerView={Math.min(4, images.length)}
                             freeMode
                             watchSlidesProgress
-                            className="mt-3"
+                            className="mt-3 product-thumb-swiper"
                         >
                             {images.map((img, index) => (
-                                <SwiperSlide key={index}>
+                                <SwiperSlide key={`thumb-${index}`}>
                                     <img
                                         src={img}
                                         alt=""
-                                        className="rounded-3 w-100 border"
-                                        style={{ height: '80px', objectFit: 'cover', cursor: 'pointer' }}
+                                        className="rounded-3 w-100 border product-detail-thumb-img"
                                     />
                                 </SwiperSlide>
                             ))}
@@ -130,18 +214,18 @@ const ProductDetail = () => {
 
                 <Col lg={6}>
                     <Badge className="mb-2 rounded-pill" style={{ background: 'var(--lavender)' }}>
-                        Danh mục: {product.category?.name || 'Chưa phân loại'}
+                        Danh mục: {activeProduct.category?.name || 'Chưa phân loại'}
                     </Badge>
 
-                    <h1 className="font-display fw-bold mb-3">{product.name}</h1>
+                    <h1 className="font-display fw-bold mb-3">{activeProduct.name}</h1>
 
                     <div className="d-flex align-items-baseline gap-3 mb-3">
                         <h3 className="text-aura fw-bold mb-0">
-                            {product.price.toLocaleString('vi-VN')} ₫
+                            {activeProduct.price.toLocaleString('vi-VN')} ₫
                         </h3>
-                        {product.originalPrice && (
+                        {activeProduct.originalPrice && (
                             <span className="text-decoration-line-through text-muted">
-                                {product.originalPrice.toLocaleString('vi-VN')} ₫
+                                {activeProduct.originalPrice.toLocaleString('vi-VN')} ₫
                             </span>
                         )}
                     </div>
@@ -150,35 +234,50 @@ const ProductDetail = () => {
                         <Badge
                             className="rounded-pill px-3 py-2"
                             style={{
-                                background: product.stock > 0 ? 'var(--mint)' : 'var(--blush-strong)',
-                                color: product.stock > 0 ? '#3d6b5c' : 'var(--rose-deep)',
+                                background: stock > 0 ? 'var(--mint)' : 'var(--blush-strong)',
+                                color: stock > 0 ? '#3d6b5c' : 'var(--rose-deep)',
                             }}
                         >
-                            {product.stock > 0 ? `Còn ${product.stock} sản phẩm` : 'Hết hàng'}
+                            {stock > 0 ? `Còn ${stock} sản phẩm` : 'Hết hàng'}
                         </Badge>
                         <Badge className="rounded-pill px-3 py-2" style={{ background: 'var(--lavender)' }}>
-                            Đã bán: {product.sold || 0}
+                            Đã bán: {activeProduct.sold || 0}
                         </Badge>
                     </div>
 
+                    {showShadePicker && (
+                        <div className="mb-4">
+                            <strong className="d-block mb-3">Chọn màu</strong>
+                            <ShadePicker
+                                items={pickerItems}
+                                selectedId={selectedPickerId}
+                                onSelect={handlePickerSelect}
+                            />
+                        </div>
+                    )}
+
                     <div className="mb-4">
                         <strong className="d-block mb-2">Số lượng</strong>
-                        <div className="d-inline-flex align-items-center aura-qty-control">
-                            <Button
-                                variant="outline-secondary"
+                        <div className="d-inline-flex align-items-center aura-shade-qty">
+                            <button
+                                type="button"
+                                className="aura-shade-qty-btn"
                                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                                 disabled={quantity <= 1}
+                                aria-label="Giảm số lượng"
                             >
                                 −
-                            </Button>
-                            <span className="px-4 fs-5 fw-bold">{quantity}</span>
-                            <Button
-                                variant="outline-secondary"
-                                onClick={() => setQuantity((q) => Math.min(q + 1, product.stock))}
-                                disabled={quantity >= product.stock || product.stock <= 0}
+                            </button>
+                            <span className="aura-shade-qty-value">{quantity}</span>
+                            <button
+                                type="button"
+                                className="aura-shade-qty-btn"
+                                onClick={() => setQuantity((q) => Math.min(q + 1, stock))}
+                                disabled={quantity >= stock || stock <= 0}
+                                aria-label="Tăng số lượng"
                             >
                                 +
-                            </Button>
+                            </button>
                         </div>
                     </div>
 
@@ -186,7 +285,7 @@ const ProductDetail = () => {
                         <Button
                             className="btn-aura flex-grow-1 py-3"
                             onClick={handleAddToCart}
-                            disabled={loading || product.stock <= 0}
+                            disabled={loading || stock <= 0}
                         >
                             <i className="bi bi-bag-plus me-2" />
                             {loading ? 'Đang thêm...' : 'Thêm vào giỏ'}
@@ -194,7 +293,7 @@ const ProductDetail = () => {
                         <Button
                             className="btn-aura-outline flex-grow-1 py-3"
                             onClick={handleAddToCart}
-                            disabled={product.stock <= 0}
+                            disabled={stock <= 0}
                         >
                             Mua ngay
                         </Button>
@@ -203,7 +302,7 @@ const ProductDetail = () => {
                     <hr className="my-4" />
                     <h5 className="fw-bold">Mô tả</h5>
                     <p className="text-muted" style={{ lineHeight: 1.8 }}>
-                        {product.description || 'Son môi cao cấp Aura Lips — màu chuẩn, bền màu, dưỡng môi.'}
+                        {activeProduct.description || 'Son môi cao cấp Aura Lips — màu chuẩn, bền màu, dưỡng môi.'}
                     </p>
                 </Col>
             </Row>

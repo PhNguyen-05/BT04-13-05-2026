@@ -1,8 +1,9 @@
 import { Card, Badge } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { resolveImageUrl } from '../utils/imageUrl';
 
 const ArticleCard = ({ article }) => {
-    const image = article.images?.[0] || '/logo.png';
+    const image = resolveImageUrl(article.images?.[0], resolveImageUrl('/logo.png'));
     const typeLabel = article.type === 'news' ? 'Tin tức' : 'Bài viết';
 
     return (
