@@ -70,31 +70,31 @@ const BRAND_CATEGORIES = [
         name: '3CE',
         slug: '3ce',
         description: 'Thương hiệu son môi Hàn Quốc — tone trendy, chất kem mịn',
-        image: '/3ce/Blur Water Tint/bia.jpg',
+        image: '/3ce/bia.jpg',
     },
     {
         name: 'Romand',
         slug: 'romand',
         description: 'Son tint & juicy lip — trong veo, trẻ trung',
-        image: '/romand/The Juicy Lasting Tint/bia.jpg',
+        image: '/romand/bia.jpg',
     },
     {
         name: 'Into You',
         slug: 'intoyou',
         description: 'Son bùn & powder — MLBB cult favorite',
-        image: '/intoyou/Customized Airy Lip Mud/bia.jpg',
+        image: '/intoyou/bia.png',
     },
     {
         name: 'Merzy',
         slug: 'merzy',
         description: 'Son lì Merzy — màu đậm, che phủ cao (thư mục merzy)',
-        image: '/merzy/New Watery Dew Tint/bia.jpg',
+        image: '/merzy/bia.png',
     },
     {
         name: 'BBIA',
         slug: 'bbia',
         description: 'BBIA Last Velvet & Glow — giá tốt, màu chuẩn',
-        image: '/bbia/Last Velvet Lip Tint/bia.jpg',
+        image: '/bbia/bia.jpg',
     },
 ];
 

@@ -2,12 +2,65 @@ const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 
+const THIRTY_MINUTES = 30 * 60 * 1000;
+const USER_CANCEL_WINDOW_MS = THIRTY_MINUTES;
+const PAYMENT_METHODS = ['COD', 'E_WALLET', 'BANK_TRANSFER'];
+const ORDER_STATUSES = ['pending', 'confirmed', 'preparing', 'shipping', 'delivered', 'cancelled', 'cancellation_requested'];
+
+const appendStatus = (order, status, note) => {
+    order.status = status;
+    if (!Array.isArray(order.statusHistory)) order.statusHistory = [];
+    order.statusHistory.push({ status, note, changedAt: new Date() });
+};
+
+const autoConfirmOrder = async (order) => {
+    if (!order || order.status !== 'pending') return order;
+
+    const confirmAt = order.autoConfirmAt || new Date(order.createdAt.getTime() + THIRTY_MINUTES);
+    if (confirmAt > new Date()) return order;
+
+    appendStatus(order, 'confirmed', 'Tu dong xac nhan sau 30 phut');
+    order.confirmedAt = new Date();
+    await order.save();
+    return order;
+};
+
+const autoConfirmOrders = async (orders) => Promise.all(orders.map(autoConfirmOrder));
+
+const restockOrder = async (order) => {
+    await Promise.all((order.items || []).map((item) => {
+        if (!item.product || !item.quantity) return Promise.resolve();
+
+        if (item.variant) {
+            return Product.updateOne(
+                { _id: item.product, 'variants._id': item.variant },
+                {
+                    $inc: {
+                        stock: item.quantity,
+                        sold: -item.quantity,
+                        'variants.$.stock': item.quantity,
+                    },
+                }
+            );
+        }
+
+        return Product.updateOne(
+            { _id: item.product },
+            { $inc: { stock: item.quantity, sold: -item.quantity } }
+        );
+    }));
+};
+
 const createOrder = async (req, res) => {
     try {
         const { shippingAddress, paymentMethod = 'COD', shippingFee = 0 } = req.body;
 
         if (!shippingAddress?.fullName || !shippingAddress?.phone || !shippingAddress?.address) {
             return res.status(400).json({ message: 'Vui long nhap day du thong tin giao hang' });
+        }
+
+        if (!PAYMENT_METHODS.includes(paymentMethod)) {
+            return res.status(400).json({ message: 'Phuong thuc thanh toan khong hop le' });
         }
 
         const cart = await Cart.findOne({ user: req.user.id }).populate('items.product');
@@ -62,6 +115,8 @@ const createOrder = async (req, res) => {
             totalAmount: totalAmount + Number(shippingFee || 0),
             shippingAddress,
             paymentMethod,
+            paymentStatus: paymentMethod === 'COD' ? 'unpaid' : 'pending',
+            autoConfirmAt: new Date(Date.now() + USER_CANCEL_WINDOW_MS),
         });
 
         await Promise.all(stockUpdates.map(({ product, variantId, quantity }) => {
@@ -95,10 +150,102 @@ const createOrder = async (req, res) => {
 const getMyOrders = async (req, res) => {
     try {
         const orders = await Order.find({ user: req.user.id }).sort({ createdAt: -1 });
-        res.json(orders);
+        res.json(await autoConfirmOrders(orders));
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-module.exports = { createOrder, getMyOrders };
+const getOrderById = async (req, res) => {
+    try {
+        const order = await Order.findOne({ _id: req.params.id, user: req.user.id });
+        if (!order) {
+            return res.status(404).json({ message: 'Khong tim thay don hang' });
+        }
+
+        res.json(await autoConfirmOrder(order));
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const cancelOrder = async (req, res) => {
+    try {
+        const order = await Order.findOne({ _id: req.params.id, user: req.user.id });
+        if (!order) {
+            return res.status(404).json({ message: 'Khong tim thay don hang' });
+        }
+
+        await autoConfirmOrder(order);
+
+        if (['shipping', 'delivered', 'cancelled', 'cancellation_requested'].includes(order.status)) {
+            return res.status(400).json({ message: 'Don hang khong the huy o trang thai hien tai' });
+        }
+
+        const reason = req.body?.reason || '';
+        const minutesSinceOrder = Date.now() - new Date(order.createdAt).getTime();
+
+        if (order.status === 'preparing') {
+            appendStatus(order, 'cancellation_requested', 'Nguoi dung gui yeu cau huy don');
+            order.cancelRequestedAt = new Date();
+            order.cancelRequestReason = reason;
+            await order.save();
+            return res.json({ message: 'Da gui yeu cau huy don cho shop', order });
+        }
+
+        if (order.status !== 'pending' || minutesSinceOrder > USER_CANCEL_WINDOW_MS) {
+            return res.status(400).json({ message: 'Chi co the huy don trong 30 phut dau sau khi dat hang' });
+        }
+
+        appendStatus(order, 'cancelled', 'Nguoi dung huy don trong 30 phut dau');
+        order.cancelledAt = new Date();
+        order.cancelReason = reason;
+        if (order.paymentStatus === 'paid') order.paymentStatus = 'refunded';
+        await order.save();
+        await restockOrder(order);
+
+        res.json({ message: 'Huy don hang thanh cong', order });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const updateOrderStatus = async (req, res) => {
+    try {
+        const { status, paymentStatus, note = '' } = req.body;
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ message: 'Khong tim thay don hang' });
+        }
+
+        if (status) {
+            if (!ORDER_STATUSES.includes(status)) {
+                return res.status(400).json({ message: 'Trang thai don hang khong hop le' });
+            }
+            const previousStatus = order.status;
+            appendStatus(order, status, note || 'Cap nhat trang thai don hang');
+            if (status === 'confirmed') order.confirmedAt = new Date();
+            if (status === 'cancelled') {
+                order.cancelledAt = new Date();
+                if (!['cancelled', 'delivered'].includes(previousStatus)) await restockOrder(order);
+            }
+        }
+
+        if (paymentStatus) {
+            order.paymentStatus = paymentStatus;
+        }
+
+        await order.save();
+        res.json({ message: 'Cap nhat don hang thanh cong', order });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = {
+    createOrder,
+    getMyOrders,
+    getOrderById,
+    cancelOrder,
+    updateOrderStatus
+};

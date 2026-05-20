@@ -72,6 +72,10 @@ const Navbar = () => {
                                         </Badge>
                                     )}
                                 </Nav.Link>
+                                <Nav.Link as={Link} to="/orders" className={`aura-nav-link ${isActive('/orders') ? 'active' : ''}`}>
+                                    <i className="bi bi-receipt-cutoff me-1" />
+                                    Đơn hàng
+                                </Nav.Link>
                                 <span className="aura-user-pill d-none d-lg-inline" title={user.email}>
                                     <i className="bi bi-person-heart me-1 text-aura" />
                                     Xin chào, <strong>{user.name}</strong>

@@ -20,14 +20,49 @@ const orderSchema = new mongoose.Schema({
     shippingAddress: {
         fullName: String,
         phone: String,
-        address: String
+        address: String,
+        note: String
     },
     status: {
         type: String,
-        enum: ['pending', 'confirmed', 'shipping', 'delivered', 'cancelled'],
+        enum: ['pending', 'confirmed', 'preparing', 'shipping', 'delivered', 'cancelled', 'cancellation_requested'],
         default: 'pending'
     },
-    paymentMethod: { type: String, default: 'COD' }
+    statusHistory: [{
+        status: String,
+        note: String,
+        changedAt: { type: Date, default: Date.now }
+    }],
+    paymentMethod: {
+        type: String,
+        enum: ['COD', 'E_WALLET', 'BANK_TRANSFER'],
+        default: 'COD'
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['unpaid', 'pending', 'paid', 'failed', 'refunded'],
+        default: 'unpaid'
+    },
+    autoConfirmAt: Date,
+    confirmedAt: Date,
+    cancelledAt: Date,
+    cancelReason: String,
+    cancelRequestedAt: Date,
+    cancelRequestReason: String
 }, { timestamps: true });
+
+orderSchema.pre('save', function(next) {
+    if (this.isNew) {
+        this.autoConfirmAt = this.autoConfirmAt || new Date(Date.now() + 30 * 60 * 1000);
+        if (!this.statusHistory?.length) {
+            this.statusHistory = [{
+                status: this.status || 'pending',
+                note: 'Don hang moi',
+                changedAt: this.createdAt || new Date()
+            }];
+        }
+    }
+    next();
+});
 
 module.exports = mongoose.model('Order', orderSchema);

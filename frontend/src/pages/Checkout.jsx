@@ -88,8 +88,8 @@ const Checkout = () => {
                             <Button as={Link} to="/shop" className="btn-aura">
                                 Tiếp tục mua sắm
                             </Button>
-                            <Button as={Link} to="/cart" className="btn-aura-outline">
-                                Xem giỏ hàng
+                            <Button as={Link} to="/orders" className="btn-aura-outline">
+                                Theo dõi đơn hàng
                             </Button>
                         </div>
                     </Card.Body>
@@ -192,6 +192,15 @@ const Checkout = () => {
                                         value="BANK_TRANSFER"
                                         label="Chuyển khoản ngân hàng"
                                         checked={form.paymentMethod === 'BANK_TRANSFER'}
+                                        onChange={handleChange}
+                                    />
+                                    <Form.Check
+                                        type="radio"
+                                        id="payment-wallet"
+                                        name="paymentMethod"
+                                        value="E_WALLET"
+                                        label="Thanh toán qua ví điện tử"
+                                        checked={form.paymentMethod === 'E_WALLET'}
                                         onChange={handleChange}
                                     />
                                 </div>
