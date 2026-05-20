@@ -99,7 +99,7 @@ const ArticleDetail = () => {
                 </Col>
 
                 <Col lg={6}>
-                    <Badge className="mb-3 rounded-pill px-3 py-2" style={{ background: 'var(--lavender)' }}>
+                    <Badge className="aura-article-badge mb-3 rounded-pill px-3 py-2">
                         {article.categoryLabel || typeLabel}
                     </Badge>
                     <h1 className="font-display fw-bold mb-3">{article.title}</h1>

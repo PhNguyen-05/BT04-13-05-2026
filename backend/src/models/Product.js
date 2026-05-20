@@ -11,6 +11,11 @@ const variantSchema = new mongoose.Schema({
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
     description: String,
+    lineName: String,
+    lineSlug: { type: String, index: true },
+    shadeCode: String,
+    shadeName: String,
+    sku: { type: String, index: true },
     price: { type: Number, required: true },
     originalPrice: Number,
     images: [{ type: String }],

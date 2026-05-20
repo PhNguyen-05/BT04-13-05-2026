@@ -6,6 +6,7 @@ import ArticleCard from '../components/ArticleCard';
 import MemberWelcome from '../components/MemberWelcome';
 import CategoryStrip from '../components/CategoryStrip';
 import HorizontalProductPager from '../components/HorizontalProductPager';
+import ProductLineSwiper from '../components/ProductLineSwiper';
 import api from '../services/api.service';
 import { AuthContext } from '../context/AuthContext';
 import { resolveImageUrl } from '../utils/imageUrl';
@@ -21,6 +22,7 @@ const Home = () => {
     const [articles, setArticles] = useState([]);
     const [categories, setCategories] = useState([]);
     const [productsByCategory, setProductsByCategory] = useState({});
+    const [productLines, setProductLines] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,6 +36,7 @@ const Home = () => {
                     viewedRes,
                     newRes,
                     articleRes,
+                    lineRes,
                 ] = await Promise.all([
                     api.get('/promotions'),
                     api.get('/categories'),
@@ -43,6 +46,7 @@ const Home = () => {
                     api.get('/products?sort=views&limit=10'),
                     api.get('/products?sort=newest&limit=4'),
                     api.get('/articles?featured=true&limit=3'),
+                    api.get('/products/lines?lineLimit=8&productLimit=10'),
                 ]);
 
                 setPromotions(promoRes.data || []);
@@ -52,6 +56,7 @@ const Home = () => {
                 setBestSellers(bestRes.data?.data || []);
                 setMostViewed(viewedRes.data?.data || []);
                 setNewProducts((newRes.data?.data || []).slice(0, 4));
+                setProductLines(lineRes.data || []);
                 const articlesData = articleRes.data || [];
                 setArticles(
                     articlesData.length
@@ -72,7 +77,7 @@ const Home = () => {
             .then((resArr) => {
                 const map = {};
                 resArr.forEach((r, i) => {
-                    map[top[i]._id] = (r.data || []).slice(0, 4);
+                    map[top[i]._id] = (r.data?.data || []).slice(0, 4);
                 });
                 setProductsByCategory(map);
             })
@@ -229,6 +234,10 @@ const Home = () => {
                     {renderProducts(featured, 'Chưa có sản phẩm nổi bật.')}
                 </Container>
             </section>
+
+            {productLines.map((line) => (
+                <ProductLineSwiper key={line.lineSlug} line={line} />
+            ))}
 
             <HorizontalProductPager
                 title="🔥 Bán chạy"

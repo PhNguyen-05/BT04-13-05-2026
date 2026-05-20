@@ -8,11 +8,13 @@ const {
     createProduct,
     getTopSellingProducts,
     getTopViewedProducts,
+    getProductLines,
 } = require('../controllers/productController');
 const authMiddleware = require('../middleware/auth');
 
 router.get('/top-selling', getTopSellingProducts);
 router.get('/top-viewed', getTopViewedProducts);
+router.get('/lines', getProductLines);
 router.get('/', getProducts);
 router.get('/:id/similar', getSimilarProducts);
 router.get('/:id/line', getProductLine);

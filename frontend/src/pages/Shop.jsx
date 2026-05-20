@@ -11,6 +11,7 @@ const Shop = () => {
     const [categories, setCategories] = useState([]);
     const [search, setSearch] = useState(searchParams.get('search') || '');
     const [category, setCategory] = useState(searchParams.get('category') || '');
+    const [lineSlug, setLineSlug] = useState(searchParams.get('lineSlug') || '');
     const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
     const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
     const [sort, setSort] = useState(searchParams.get('sort') || '');
@@ -33,7 +34,9 @@ const Shop = () => {
 
     useEffect(() => {
         const c = searchParams.get('category');
+        const line = searchParams.get('lineSlug');
         if (c) setCategory(c);
+        if (line) setLineSlug(line);
         if (searchParams.get('onSale') === 'true') setOnSale(true);
     }, [searchParams]);
 
@@ -42,12 +45,12 @@ const Shop = () => {
         setPage(1);
         setTotal(0);
         setHasMore(false);
-    }, [search, category, minPrice, maxPrice, sort, onSale, inStock, featured]);
+    }, [search, category, lineSlug, minPrice, maxPrice, sort, onSale, inStock, featured]);
 
     useEffect(() => {
         const timer = setTimeout(() => fetchProducts(page), 400);
         return () => clearTimeout(timer);
-    }, [page, search, category, minPrice, maxPrice, sort, onSale, inStock, featured]);
+    }, [page, search, category, lineSlug, minPrice, maxPrice, sort, onSale, inStock, featured]);
 
     const fetchProducts = async (currentPage = 1) => {
         if (currentPage === 1) {
@@ -60,6 +63,7 @@ const Shop = () => {
             const params = new URLSearchParams();
             if (search) params.append('search', search);
             if (category) params.append('category', category);
+            if (lineSlug) params.append('lineSlug', lineSlug);
             if (minPrice) params.append('minPrice', minPrice);
             if (maxPrice) params.append('maxPrice', maxPrice);
             if (sort) params.append('sort', sort);
@@ -110,6 +114,7 @@ const Shop = () => {
     const resetFilters = () => {
         setSearch('');
         setCategory('');
+        setLineSlug('');
         setMinPrice('');
         setMaxPrice('');
         setSort('');

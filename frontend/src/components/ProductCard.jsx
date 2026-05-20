@@ -1,11 +1,17 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useContext } from 'react';
 import { Card, Button, Badge } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getProductImageCandidates, FALLBACK_IMG } from '../utils/imageUrl';
+import { CartContext } from '../context/CartContext';
+import { AuthContext } from '../context/AuthContext';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, showQuickActions = false }) => {
+    const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
+    const { addToCart } = useContext(CartContext);
     const candidates = useMemo(() => getProductImageCandidates(product), [product]);
     const [attempt, setAttempt] = useState(0);
+    const [adding, setAdding] = useState(false);
 
     useEffect(() => {
         setAttempt(0);
@@ -18,17 +24,35 @@ const ProductCard = ({ product }) => {
         setAttempt((i) => (i < candidates.length ? i + 1 : i));
     };
 
+    const handleCartAction = async (buyNow = false) => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+        if (product.stock <= 0) return;
+
+        setAdding(true);
+        const success = await addToCart(product._id, 1, null);
+        setAdding(false);
+
+        if (success && buyNow) {
+            navigate('/checkout');
+        }
+    };
+
     return (
         <Card className="h-100 product-card border-0 overflow-hidden">
             <div className="position-relative">
-                <img
-                    src={imgSrc}
-                    onError={handleImgError}
-                    className="card-img-top product-image"
-                    alt={product.name}
-                    style={{ height: '260px', objectFit: 'cover', width: '100%' }}
-                    loading="lazy"
-                />
+                <Link to={`/product/${product._id}`} className="d-block">
+                    <img
+                        src={imgSrc}
+                        onError={handleImgError}
+                        className="card-img-top product-image"
+                        alt={product.name}
+                        style={{ height: '260px', objectFit: 'cover', width: '100%' }}
+                        loading="lazy"
+                    />
+                </Link>
                 {product.originalPrice && (
                     <Badge
                         className="position-absolute top-0 start-0 m-3 rounded-pill px-3"
@@ -50,18 +74,23 @@ const ProductCard = ({ product }) => {
             </div>
 
             <Card.Body className="d-flex flex-column p-3">
-                <Card.Title className="fw-bold mb-2" style={{ fontSize: '1rem', color: 'var(--text-heading)' }}>
+                <Card.Title
+                    as={Link}
+                    to={`/product/${product._id}`}
+                    className="fw-bold mb-2 text-decoration-none d-block"
+                    style={{ fontSize: '1rem', color: 'var(--text-heading)' }}
+                >
                     {product.name}
                 </Card.Title>
 
                 <div className="mt-auto">
                     <div className="d-flex align-items-baseline gap-2 mb-3">
                         <span className="fw-bold text-aura" style={{ fontSize: '1.1rem' }}>
-                            {product.price ? product.price.toLocaleString('vi-VN') : '0'} ₫
+                            {product.price ? product.price.toLocaleString('vi-VN') : '0'} đ
                         </span>
                         {product.originalPrice && (
                             <small className="text-decoration-line-through text-muted">
-                                {product.originalPrice.toLocaleString('vi-VN')} ₫
+                                {product.originalPrice.toLocaleString('vi-VN')} đ
                             </small>
                         )}
                     </div>
@@ -79,6 +108,26 @@ const ProductCard = ({ product }) => {
                             </Button>
                         </Link>
                     </div>
+
+                    {showQuickActions && (
+                        <div className="product-card-actions mt-3">
+                            <Button
+                                className="btn-aura btn-sm py-2"
+                                disabled={adding || product.stock <= 0}
+                                onClick={() => handleCartAction(false)}
+                            >
+                                <i className="bi bi-bag-plus me-1" />
+                                {adding ? 'Đang thêm...' : 'Thêm giỏ'}
+                            </Button>
+                            <Button
+                                className="btn-aura-outline btn-sm py-2"
+                                disabled={adding || product.stock <= 0}
+                                onClick={() => handleCartAction(true)}
+                            >
+                                Mua ngay
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </Card.Body>
         </Card>

@@ -16,8 +16,7 @@ const ArticleCard = ({ article }) => {
             />
             <Card.Body className="d-flex flex-column">
                 <Badge
-                    className="align-self-start mb-2 rounded-pill"
-                    style={{ background: 'var(--lavender)', color: 'var(--text-heading)' }}
+                    className="aura-article-badge align-self-start mb-2 rounded-pill"
                 >
                     {article.categoryLabel || typeLabel}
                 </Badge>
