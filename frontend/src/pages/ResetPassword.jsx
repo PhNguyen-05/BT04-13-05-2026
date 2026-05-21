@@ -7,9 +7,9 @@ const AUTH_IMAGE = '/login/login3.jpg';
 
 const ResetPassword = () => {
     const [searchParams] = useSearchParams();
-    const token = searchParams.get('token') || '';
     const navigate = useNavigate();
-
+    const [email, setEmail] = useState(searchParams.get('email') || '');
+    const [otp, setOtp] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -20,10 +20,6 @@ const ResetPassword = () => {
         e.preventDefault();
         setError('');
 
-        if (!token) {
-            setError('Liên kết không hợp lệ. Vui lòng yêu cầu đặt lại mật khẩu mới.');
-            return;
-        }
         if (password !== confirmPassword) {
             setError('Mật khẩu xác nhận không khớp.');
             return;
@@ -32,10 +28,14 @@ const ResetPassword = () => {
             setError('Mật khẩu phải có ít nhất 6 ký tự.');
             return;
         }
+        if (otp.length !== 6) {
+            setError('Mã OTP phải gồm 6 chữ số.');
+            return;
+        }
 
         setLoading(true);
         try {
-            await api.post('/auth/reset-password', { token, password });
+            await api.post('/auth/reset-password', { email, otp, password });
             alert('Đặt lại mật khẩu thành công!');
             navigate('/login');
         } catch (err) {
@@ -57,8 +57,8 @@ const ResetPassword = () => {
                             <i className="bi bi-shield-lock-fill" />
                         </div>
 
-                        <h2 className="text-center font-display mb-1">Mật khẩu mới</h2>
-                        <p className="text-center text-muted mb-4">Tạo mật khẩu mới cho tài khoản của bạn</p>
+                        <h2 className="text-center font-display mb-1">Đặt lại mật khẩu</h2>
+                        <p className="text-center text-muted mb-4">Nhập mã OTP từ email và mật khẩu mới</p>
 
                         {error && (
                             <Alert variant="danger" className="small rounded-4 border-0">
@@ -67,6 +67,28 @@ const ResetPassword = () => {
                         )}
 
                         <Form onSubmit={handleSubmit}>
+                            <Form.Group className="mb-3">
+                                <Form.Label className="aura-form-label">Email</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    className="aura-form-control"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label className="aura-form-label">Mã OTP</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    className="aura-form-control text-center"
+                                    placeholder="000000"
+                                    maxLength={6}
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                                    required
+                                />
+                            </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label className="aura-form-label">Mật khẩu mới</Form.Label>
                                 <div className="position-relative">
@@ -89,7 +111,6 @@ const ResetPassword = () => {
                                     </Button>
                                 </div>
                             </Form.Group>
-
                             <Form.Group className="mb-4">
                                 <Form.Label className="aura-form-label">Xác nhận mật khẩu</Form.Label>
                                 <Form.Control
@@ -104,23 +125,13 @@ const ResetPassword = () => {
                             </Form.Group>
 
                             <Button type="submit" className="btn-aura w-100 py-3 mb-3" disabled={loading}>
-                                {loading ? (
-                                    <>
-                                        <span className="spinner-border spinner-border-sm me-2" />
-                                        Đang lưu...
-                                    </>
-                                ) : (
-                                    <>
-                                        <i className="bi bi-check2-circle me-2" />
-                                        Đặt lại mật khẩu
-                                    </>
-                                )}
+                                {loading ? 'Đang lưu...' : 'Đặt lại mật khẩu'}
                             </Button>
                         </Form>
 
                         <p className="text-center mt-3 mb-0">
                             <Link to="/forgot-password" className="link-aura me-3">
-                                Gửi lại link
+                                Gửi lại OTP
                             </Link>
                             <Link to="/login" className="link-aura">
                                 Đăng nhập
@@ -141,4 +152,3 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
-

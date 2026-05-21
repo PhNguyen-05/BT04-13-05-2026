@@ -12,6 +12,9 @@ const userSchema = new mongoose.Schema({
     },
     phone: String,
     address: String,
+    isVerified: { type: Boolean, default: false },
+    otp: String,
+    otpExpires: Date,
     resetPasswordToken: String,
     resetPasswordExpires: Date
 }, { timestamps: true });

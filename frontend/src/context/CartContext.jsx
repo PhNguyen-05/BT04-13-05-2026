@@ -1,13 +1,13 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useState, useEffect } from 'react';
 import api from '../services/api.service';
-import { AuthContext } from './AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
     const [cart, setCart] = useState({ items: [] });
     const [loading, setLoading] = useState(false);
-    const { user } = useContext(AuthContext);
+    const { user } = useAuth();
 
     // Lấy giỏ hàng khi user đăng nhập
     useEffect(() => {
@@ -19,12 +19,19 @@ export const CartProvider = ({ children }) => {
     }, [user]);
 
     const fetchCart = async () => {
+        if (!localStorage.getItem('token')) {
+            setCart({ items: [] });
+            return;
+        }
         try {
             setLoading(true);
             const res = await api.get('/cart');
             setCart(res.data);
         } catch (err) {
-            console.error(err);
+            if (err.response?.status !== 401) {
+                console.error(err);
+            }
+            setCart({ items: [] });
         } finally {
             setLoading(false);
         }

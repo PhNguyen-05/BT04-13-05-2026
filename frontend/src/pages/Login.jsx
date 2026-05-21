@@ -157,11 +157,11 @@
 
 // export default Login;
 
-import { useState, useContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Row, Col, Form, Button } from 'react-bootstrap';
 import api from '../services/api.service';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -170,7 +170,7 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-    const { login } = useContext(AuthContext);
+    const { login } = useAuth();
     const navigate = useNavigate();
 
     
@@ -198,9 +198,16 @@ const Login = () => {
         try {
             const res = await api.post('/auth/login', { email, password });
             login(res.data.user, res.data.token);
-            navigate('/');
+            const target = res.data.redirectUrl || res.data.profileUrl
+                || (res.data.user?.role === 'admin' ? '/admin/profile' : '/user/profile');
+            navigate(target);
         } catch (error) {
-            alert(error.response?.data?.message || 'Đăng nhập thất bại');
+            const data = error.response?.data;
+            if (data?.requiresVerification) {
+                navigate(`/verify-email?email=${encodeURIComponent(data.email || email)}`);
+                return;
+            }
+            alert(data?.message || 'Đăng nhập thất bại');
         } finally {
             setLoading(false);
         }

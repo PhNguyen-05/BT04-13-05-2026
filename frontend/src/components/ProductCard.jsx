@@ -3,11 +3,11 @@ import { Card, Button, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { getProductImageCandidates, FALLBACK_IMG } from '../utils/imageUrl';
 import { CartContext } from '../context/CartContext';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const ProductCard = ({ product, showQuickActions = false }) => {
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
+    const { user } = useAuth();
     const { addToCart } = useContext(CartContext);
     const candidates = useMemo(() => getProductImageCandidates(product), [product]);
     const [attempt, setAttempt] = useState(0);

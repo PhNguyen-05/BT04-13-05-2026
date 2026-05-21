@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { CartContext } from '../context/CartContext';
 import { Navbar as BootstrapNavbar, Nav, Container, Button, Badge } from 'react-bootstrap';
 
 const Navbar = () => {
-    const { user, logout } = useContext(AuthContext);
+    const { user, logout, isAdmin } = useAuth();
     const { getTotalItems } = useContext(CartContext);
     const navigate = useNavigate();
     const location = useLocation();
@@ -76,9 +76,23 @@ const Navbar = () => {
                                     <i className="bi bi-receipt-cutoff me-1" />
                                     Đơn hàng
                                 </Nav.Link>
-                                <span className="aura-user-pill d-none d-lg-inline" title={user.email}>
+                                <Nav.Link
+                                    as={Link}
+                                    to={isAdmin ? '/admin/profile' : '/user/profile'}
+                                    className={`aura-nav-link ${isActive(isAdmin ? '/admin/profile' : '/user/profile') ? 'active' : ''}`}
+                                >
+                                    <i className="bi bi-person-heart me-1" />
+                                    Hồ sơ
+                                </Nav.Link>
+                                {isAdmin && (
+                                    <Nav.Link as={Link} to="/admin/orders" className={`aura-nav-link ${isActive('/admin/orders') ? 'active' : ''}`}>
+                                        <i className="bi bi-gear me-1" />
+                                        Quản trị
+                                    </Nav.Link>
+                                )}
+                                <span className="aura-user-pill d-none d-xl-inline" title={user.email}>
                                     <i className="bi bi-person-heart me-1 text-aura" />
-                                    Xin chào, <strong>{user.name}</strong>
+                                    <strong>{user.name}</strong>
                                 </span>
                                 <Button className="btn-aura-outline btn-sm" onClick={handleLogout}>
                                     <i className="bi bi-box-arrow-right me-1" />

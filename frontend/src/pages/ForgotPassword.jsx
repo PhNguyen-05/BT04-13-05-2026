@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import api from '../services/api.service';
 
@@ -10,6 +10,7 @@ const ForgotPassword = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [isError, setIsError] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,6 +20,11 @@ const ForgotPassword = () => {
         try {
             const res = await api.post('/auth/forgot-password', { email });
             setMessage(res.data.message);
+            if (res.data.email) {
+                setTimeout(() => {
+                    navigate(`/reset-password?email=${encodeURIComponent(res.data.email)}`);
+                }, 2000);
+            }
         } catch (error) {
             setIsError(true);
             setMessage(error.response?.data?.message || 'Không thể gửi yêu cầu. Vui lòng thử lại.');
@@ -41,7 +47,7 @@ const ForgotPassword = () => {
 
                         <h2 className="text-center font-display mb-1">Quên mật khẩu</h2>
                         <p className="text-center text-muted mb-4">
-                            Nhập email đăng ký — chúng mình sẽ gửi link đặt lại mật khẩu qua email
+                            Nhập email đăng ký — chúng mình sẽ gửi mã OTP 6 số qua email
                         </p>
 
                         {message && (
@@ -72,7 +78,7 @@ const ForgotPassword = () => {
                                 ) : (
                                     <>
                                         <i className="bi bi-envelope me-2" />
-                                        Gửi link qua email
+                                        Gửi mã OTP qua email
                                     </>
                                 )}
                             </Button>
@@ -95,7 +101,7 @@ const ForgotPassword = () => {
                             <span className="aura-hero-badge">🔐 Bảo mật</span>
                             <h2 className="font-display">Khôi phục tài khoản an toàn</h2>
                             <p className="lead mb-0" style={{ color: 'var(--text-soft)' }}>
-                                Liên kết đặt lại mật khẩu có hiệu lực trong 1 giờ.
+                                Mã OTP có hiệu lực trong 15 phút.
                             </p>
                         </div>
                     </div>

@@ -28,13 +28,18 @@ const Register = () => {
         }
         setLoading(true);
         try {
-            await api.post('/auth/register', {
+            const res = await api.post('/auth/register', {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
             });
-            alert('Đăng ký thành công! Vui lòng đăng nhập.');
-            navigate('/login');
+            if (res.data.requiresVerification) {
+                alert(res.data.message || 'Vui lòng kiểm tra email để nhập mã OTP.');
+                navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+            } else {
+                alert(res.data.message || 'Đăng ký thành công! Vui lòng đăng nhập.');
+                navigate('/login');
+            }
         } catch (error) {
             alert(error.response?.data?.message || 'Đăng ký thất bại');
         } finally {

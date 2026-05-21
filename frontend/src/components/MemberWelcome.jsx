@@ -1,10 +1,9 @@
-import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const MemberWelcome = () => {
-    const { user, logout } = useContext(AuthContext);
+    const { user, logout } = useAuth();
 
     if (!user) return null;
 
@@ -23,6 +22,14 @@ const MemberWelcome = () => {
                         <small className="text-muted">{user.email}</small>
                     </div>
                     <div className="d-flex gap-2 flex-wrap">
+                        <Button
+                            as={Link}
+                            to={user.role === 'admin' ? '/admin/profile' : '/user/profile'}
+                            className="btn-aura-outline btn-sm"
+                        >
+                            <i className="bi bi-person me-1" />
+                            Hồ sơ
+                        </Button>
                         <Button as={Link} to="/shop" className="btn-aura btn-sm">
                             <i className="bi bi-bag-heart me-1" />
                             Mua sắm

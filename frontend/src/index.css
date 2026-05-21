@@ -1834,3 +1834,81 @@ h1, h2, h3, h4, .font-display {
     grid-template-columns: 1fr;
   }
 }
+
+/* ——— Profile pages ——— */
+.aura-profile-page {
+  min-height: 60vh;
+  background: linear-gradient(180deg, var(--cream) 0%, var(--blush) 35%, var(--cream-warm) 100%);
+}
+
+.aura-profile-hero {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--blush-strong);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 2rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.aura-profile-eyebrow {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--rose-deep);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.aura-profile-card {
+  background: #ffffff;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-card);
+}
+
+.aura-profile-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--gradient-btn);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 28px rgba(232, 145, 168, 0.35);
+}
+
+.aura-profile-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.aura-profile-stat {
+  background: var(--blush);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.5rem;
+}
+
+.aura-profile-stat-value {
+  display: block;
+  font-weight: 800;
+  color: var(--text-heading);
+  font-size: 1rem;
+}
+
+.aura-profile-stat-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-soft);
+}
+
+.aura-profile-action-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aura-profile-action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card);
+}

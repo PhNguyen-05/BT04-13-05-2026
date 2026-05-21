@@ -88,9 +88,42 @@ const sendPasswordResetEmail = async (to, resetUrl) => {
     await transport.sendMail({ from, to, subject, text, html });
 };
 
+const sendOtpEmail = async (to, otp, purpose = 'verify') => {
+    const transport = getTransporter();
+    if (!transport) {
+        throw new Error('EMAIL_NOT_CONFIGURED');
+    }
+
+    const from = process.env.SMTP_FROM || `"Aura Lips" <${process.env.SMTP_USER}>`;
+    const isReset = purpose === 'reset';
+    const subject = isReset
+        ? 'Mã OTP đặt lại mật khẩu — Aura Lips'
+        : 'Mã OTP kích hoạt tài khoản — Aura Lips';
+    const title = isReset ? 'Đặt lại mật khẩu' : 'Kích hoạt tài khoản';
+    const intro = isReset
+        ? 'Bạn đã yêu cầu đặt lại mật khẩu. Nhập mã OTP bên dưới trên trang web (có hiệu lực 15 phút).'
+        : 'Cảm ơn bạn đã đăng ký Aura Lips. Nhập mã OTP bên dưới để kích hoạt tài khoản (có hiệu lực 15 phút).';
+
+    const text = [intro, '', `Mã OTP: ${otp}`, '', 'Nếu bạn không yêu cầu, hãy bỏ qua email này.'].join('\n');
+
+    const html = `
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; background: #fffaf8;">
+            <h2 style="color: #3d2f36; text-align: center;">${title}</h2>
+            <p style="color: #5a4550; line-height: 1.6;">${intro}</p>
+            <p style="text-align: center; margin: 28px 0;">
+                <span style="display: inline-block; background: #fce8ee; color: #3d2f36; padding: 16px 32px; border-radius: 12px; font-size: 28px; font-weight: bold; letter-spacing: 8px;">${otp}</span>
+            </p>
+            <p style="color: #8f7a84; font-size: 12px; text-align: center;">Mã có hiệu lực trong 15 phút.</p>
+        </div>
+    `;
+
+    await transport.sendMail({ from, to, subject, text, html });
+};
+
 module.exports = {
     isEmailConfigured,
     verifyEmailConnection,
     sendPasswordResetEmail,
+    sendOtpEmail,
 };
 

@@ -2,12 +2,12 @@ import { useContext } from 'react';
 import { Container, Row, Col, Button, Card, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { resolveImageUrl } from '../utils/imageUrl';
 
 const Cart = () => {
     const { cart, loading, removeFromCart, updateCartQuantity, getTotalPrice } = useContext(CartContext);
-    const { user } = useContext(AuthContext);
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     if (!user) {

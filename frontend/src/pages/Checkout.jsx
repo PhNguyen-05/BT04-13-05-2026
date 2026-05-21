@@ -1,19 +1,19 @@
 import { useContext, useMemo, useState } from 'react';
 import { Alert, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { CartContext } from '../context/CartContext';
 import api from '../services/api.service';
 import { resolveImageUrl } from '../utils/imageUrl';
 
 const Checkout = () => {
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
+    const { user } = useAuth();
     const { cart, loading, getTotalPrice, refreshCart } = useContext(CartContext);
     const [form, setForm] = useState({
         fullName: user?.name || '',
-        phone: '',
-        address: '',
+        phone: user?.phone || '',
+        address: user?.address || '',
         note: '',
         paymentMethod: 'COD',
     });

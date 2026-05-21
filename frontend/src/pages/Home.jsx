@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Row, Col, Carousel, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
@@ -8,11 +8,11 @@ import CategoryStrip from '../components/CategoryStrip';
 import HorizontalProductPager from '../components/HorizontalProductPager';
 import ProductLineSwiper from '../components/ProductLineSwiper';
 import api from '../services/api.service';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { resolveImageUrl } from '../utils/imageUrl';
 
 const Home = () => {
-    const { user } = useContext(AuthContext);
+    const { user } = useAuth();
     const [promotions, setPromotions] = useState([]);
     const [promoProducts, setPromoProducts] = useState([]);
     const [featured, setFeatured] = useState([]);
@@ -42,8 +42,8 @@ const Home = () => {
                     api.get('/categories'),
                     api.get('/products?onSale=true&limit=4'),
                     api.get('/products?featured=true&limit=4'),
-                    api.get('/products?sort=sold&limit=10'),
-                    api.get('/products?sort=views&limit=10'),
+                    api.get('/products/top-selling?limit=10'),
+                    api.get('/products/top-viewed?limit=10'),
                     api.get('/products?sort=newest&limit=4'),
                     api.get('/articles?featured=true&limit=3'),
                     api.get('/products/lines?lineLimit=8&productLimit=10'),

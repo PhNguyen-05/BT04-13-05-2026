@@ -242,10 +242,43 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
+const getAllOrders = async (req, res) => {
+    try {
+        const { status, page = 1, limit = 20 } = req.query;
+        const filter = {};
+        if (status) filter.status = status;
+
+        const skip = (Math.max(1, Number(page)) - 1) * Math.min(50, Number(limit) || 20);
+        const take = Math.min(50, Number(limit) || 20);
+
+        const [orders, total] = await Promise.all([
+            Order.find(filter)
+                .populate('user', 'name email phone')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(take),
+            Order.countDocuments(filter),
+        ]);
+
+        await autoConfirmOrders(orders);
+
+        res.json({
+            data: orders,
+            page: Number(page),
+            limit: take,
+            total,
+            totalPages: Math.ceil(total / take),
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     createOrder,
     getMyOrders,
+    getAllOrders,
     getOrderById,
     cancelOrder,
-    updateOrderStatus
+    updateOrderStatus,
 };

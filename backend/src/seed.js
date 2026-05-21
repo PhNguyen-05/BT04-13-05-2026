@@ -407,15 +407,31 @@ const seed = async () => {
         },
     ]);
 
-    const existingUser = await User.findOne({ email: 'member@auralips.vn' });
-    if (!existingUser) {
-        await User.create({
+    const demoUsers = [
+        {
             name: 'Thành viên Demo',
             email: 'member@auralips.vn',
             password: '123456',
             role: 'customer',
-        });
-        console.log('👤 Tài khoản demo: member@auralips.vn / 123456');
+            isVerified: true,
+            phone: '0901234567',
+            address: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+        },
+        {
+            name: 'Quản trị Aura',
+            email: 'admin@auralips.vn',
+            password: 'admin123',
+            role: 'admin',
+            isVerified: true,
+        },
+    ];
+
+    for (const demo of demoUsers) {
+        const existingUser = await User.findOne({ email: demo.email });
+        if (!existingUser) {
+            await User.create(demo);
+            console.log(`👤 Tài khoản: ${demo.email} / ${demo.password} (${demo.role})`);
+        }
     }
 
     console.log('✅ Seed hoàn tất — 5 danh mục thương hiệu:');

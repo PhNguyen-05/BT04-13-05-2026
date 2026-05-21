@@ -1,6 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
@@ -16,8 +16,12 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import VerifyEmail from './pages/VerifyEmail';
+import UserProfile from './pages/UserProfile';
+import AdminProfile from './pages/AdminProfile';
+import AdminOrders from './pages/AdminOrders';
 
-const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password'];
+const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'];
 
 function AppLayout() {
     const location = useLocation();
@@ -41,6 +45,32 @@ function AppLayout() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/verify-email" element={<VerifyEmail />} />
+                    <Route path="/profile" element={<Navigate to="/user/profile" replace />} />
+                    <Route
+                        path="/user/profile"
+                        element={
+                            <ProtectedRoute>
+                                <UserProfile />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/profile"
+                        element={
+                            <ProtectedRoute adminOnly>
+                                <AdminProfile />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/orders"
+                        element={
+                            <ProtectedRoute adminOnly>
+                                <AdminOrders />
+                            </ProtectedRoute>
+                        }
+                    />
                 </Routes>
             </main>
 
@@ -51,13 +81,11 @@ function AppLayout() {
 
 function App() {
     return (
-        <AuthProvider>
-            <CartProvider>
-                <Router>
-                    <AppLayout />
-                </Router>
-            </CartProvider>
-        </AuthProvider>
+        <CartProvider>
+            <Router>
+                <AppLayout />
+            </Router>
+        </CartProvider>
     );
 }
 

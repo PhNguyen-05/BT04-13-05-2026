@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -10,7 +10,7 @@ import 'swiper/css/thumbs';
 import api from '../services/api.service';
 import ProductCard from '../components/ProductCard';
 import ShadePicker from '../components/ShadePicker';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { CartContext } from '../context/CartContext';
 import { resolveImageList } from '../utils/imageUrl';
 
@@ -95,7 +95,7 @@ const getShadeDisplayName = (product, index) => {
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user } = useContext(AuthContext);
+    const { user } = useAuth();
     const { addToCart } = useContext(CartContext);
 
     const [lineProducts, setLineProducts] = useState([]);
@@ -338,8 +338,8 @@ const ProductDetail = () => {
                             <span className="share-dot">p</span>
                             <span className="share-dot dark">x</span>
                             <span className="product-liked">
-                                <i className="bi bi-heart" />
-                                Đã thích ({activeProduct.sold || 0})
+                                <i className="bi bi-bag-check" />
+                                Đã bán {activeProduct.sold || 0}
                             </span>
                         </div>
                     </Col>
@@ -350,6 +350,26 @@ const ProductDetail = () => {
                             <h1>{activeProduct.lineName || activeProduct.name}</h1>
                         </div>
 
+                        <div className="product-category-sold-row d-flex flex-wrap align-items-center gap-2 mb-3">
+                            {activeProduct.category && (
+                                <Link
+                                    to={`/shop?category=${activeProduct.category._id || activeProduct.category}`}
+                                    className="badge rounded-pill text-decoration-none"
+                                    style={{ background: 'var(--gradient-btn)', color: '#fff' }}
+                                >
+                                    <i className="bi bi-tag me-1" />
+                                    {activeProduct.category.name || 'Danh mục'}
+                                </Link>
+                            )}
+                            <span className="badge rounded-pill bg-light text-dark border">
+                                <i className="bi bi-bag-check me-1 text-aura" />
+                                Đã bán: <strong>{(activeProduct.sold || 0).toLocaleString('vi-VN')}</strong>
+                            </span>
+                            <span className="badge rounded-pill bg-light text-dark border">
+                                <i className="bi bi-eye me-1" />
+                                {activeProduct.views || 0} lượt xem
+                            </span>
+                        </div>
 
                         <div className="product-meta-row">
                             <span className="rating-score">5.0</span>
