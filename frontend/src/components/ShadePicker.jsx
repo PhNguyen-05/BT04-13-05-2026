@@ -28,17 +28,16 @@ const ShadeThumb = ({ src, alt }) => {
     );
 };
 
-const ShadePicker = ({ items, selectedId, onSelect, onAddToCart, onBuyNow, loadingKey }) => {
+const ShadePicker = ({ items, selectedId, onSelect, loadingKey }) => {
     if (!items?.length) return null;
 
-    const hasActions = Boolean(onAddToCart || onBuyNow);
 
     return (
         <div className="aura-shade-picker" role="listbox" aria-label="Chọn màu son">
             {items.map((item) => {
                 const active = item.id === selectedId;
                 const outOfStock = item.stock <= 0;
-                const isLoading = loadingKey === item.id;
+                
 
                 return (
                     <div
@@ -61,34 +60,12 @@ const ShadePicker = ({ items, selectedId, onSelect, onAddToCart, onBuyNow, loadi
                                     {item.swatch && <span className="aura-shade-swatch-chip" style={{ background: item.swatch }} />}
                                     <span>{item.label}</span>
                                 </span>
-                                {item.description && <span className="aura-shade-item-desc">{item.description}</span>}
+                               
                             </span>
                             {outOfStock && <span className="aura-shade-soldout">Hết hàng</span>}
                         </button>
 
-                        {hasActions && (
-                            <div className="aura-shade-item-actions">
-                                <button
-                                    type="button"
-                                    className="aura-shade-action-btn"
-                                    onClick={() => onAddToCart?.(item)}
-                                    disabled={outOfStock || isLoading}
-                                    title="Thêm màu này vào giỏ"
-                                    aria-label="Thêm màu này vào giỏ"
-                                >
-                                    <i className="bi bi-bag-plus" />
-                                </button>
-                                <button
-                                    type="button"
-                                    className="aura-shade-action-btn buy"
-                                    onClick={() => onBuyNow?.(item)}
-                                    disabled={outOfStock || isLoading}
-                                    title="Mua ngay màu này"
-                                >
-                                    {isLoading ? 'Đang xử lý...' : 'Mua màu này'}
-                                </button>
-                            </div>
-                        )}
+                        
                     </div>
                 );
             })}

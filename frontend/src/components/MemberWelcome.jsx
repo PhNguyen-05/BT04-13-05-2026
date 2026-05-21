@@ -7,6 +7,8 @@ const MemberWelcome = () => {
 
     if (!user) return null;
 
+    const profilePath = user.role === 'admin' ? '/admin/profile' : '/user/profile';
+
     return (
         <div className="aura-member-banner animate-fade-in-up">
             <div className="aura-member-banner-inner">
@@ -17,19 +19,14 @@ const MemberWelcome = () => {
                     <div className="flex-grow-1">
                         <p className="mb-0 small text-muted">Thành viên đang đăng nhập</p>
                         <h4 className="font-display mb-0">
-                            Xin chào, <span className="text-aura">{user.name}</span>
+                           Xin chào, 
+                            <Link to={profilePath} className="text-aura text-decoration-none ms-1">
+                                <span className="text-aura">{user.name}</span>
+                            </Link>
                         </h4>
                         <small className="text-muted">{user.email}</small>
                     </div>
                     <div className="d-flex gap-2 flex-wrap">
-                        <Button
-                            as={Link}
-                            to={user.role === 'admin' ? '/admin/profile' : '/user/profile'}
-                            className="btn-aura-outline btn-sm"
-                        >
-                            <i className="bi bi-person me-1" />
-                            Hồ sơ
-                        </Button>
                         <Button as={Link} to="/shop" className="btn-aura btn-sm">
                             <i className="bi bi-bag-heart me-1" />
                             Mua sắm

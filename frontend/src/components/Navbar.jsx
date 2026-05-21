@@ -33,9 +33,7 @@ const Navbar = () => {
         >
             <Container>
                 <BootstrapNavbar.Brand as={Link} to="/" className="aura-brand">
-                    <span className="aura-brand-icon">
-                        <i className="bi bi-heart-fill" />
-                    </span>
+                   <img src="/logo.png" alt="Aura Lips Logo" className="aura-brand-logo" />
                     Aura Lips
                 </BootstrapNavbar.Brand>
 

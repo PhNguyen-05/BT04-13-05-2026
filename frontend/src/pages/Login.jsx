@@ -169,6 +169,8 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [errors, setErrors] = useState({});
+    const [touchedFields, setTouchedFields] = useState({});
 
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -191,9 +193,70 @@ const Login = () => {
         // Cleanup khi component unmount
         return () => clearInterval(interval);
     }, []);
+    const validateField = (name, value) => {
+        const newErrors = { ...errors };
+        if (name === 'email') {
+            if (!value.trim()) {
+                newErrors.email = 'Email không được để trống';
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                newErrors.email = 'Email không hợp lệ';
+            } else {
+                delete newErrors.email;
+            }
+        } else if (name === 'password') {
+            if (!value) {
+                newErrors.password = 'Mật khẩu không được để trống';
+            } else if (value.length < 6) {
+                newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+            } else {
+                delete newErrors.password;
+            }
+        }
+        return newErrors;
+    };
+
+    const handleEmailChange = (e) => {
+        const value = e.target.value;
+        setEmail(value);
+        if (touchedFields.email) {
+            setErrors(validateField('email', value));
+        }
+    };
+
+    const handlePasswordChange = (e) => {
+        const value = e.target.value;
+        setPassword(value);
+        if (touchedFields.password) {
+            setErrors(validateField('password', value));
+        }
+    };
+
+    const handleBlur = (e) => {
+        const { name } = e.target;
+        setTouchedFields({ ...touchedFields, [name]: true });
+        setErrors(validateField(name, name === 'email' ? email : password));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // Validate all fields
+        let newErrors = {};
+        newErrors = validateField('email', email);
+        const passwordErrors = validateField('password', password);
+        Object.assign(newErrors, passwordErrors);
+        
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            setTouchedFields({ email: true, password: true });
+            // Focus on first error field
+            if (newErrors.email) {
+                document.querySelector('input[name="email"]')?.focus();
+            } else if (newErrors.password) {
+                document.querySelector('input[name="password"]')?.focus();
+            }
+            return;
+        }
+        
         setLoading(true);
         try {
             const res = await api.post('/auth/login', { email, password });
@@ -207,7 +270,13 @@ const Login = () => {
                 navigate(`/verify-email?email=${encodeURIComponent(data.email || email)}`);
                 return;
             }
-            alert(data?.message || 'Đăng nhập thất bại');
+            // Show API error on email field if it's a login error
+            if (data?.message) {
+                setErrors({ email: data.message });
+                setTouchedFields({ email: true });
+                document.querySelector('input[name="email"]')?.focus();
+            }
+
         } finally {
             setLoading(false);
         }
@@ -236,12 +305,17 @@ const Login = () => {
                                 <Form.Label className="aura-form-label">Email</Form.Label>
                                 <Form.Control
                                     type="email"
-                                    className="aura-form-control"
+                                    name="email"
+                                    className={`aura-form-control ${errors.email ? 'is-invalid' : ''}`}
+                                    
                                     placeholder="ban@email.com"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={handleEmailChange}
+                                    onBlur={handleBlur}
+                                    
                                     required
                                 />
+                                {errors.email && <span className="aura-form-error">{errors.email}</span>}
                             </Form.Group>
 
                             <Form.Group className="mb-3">
@@ -249,10 +323,12 @@ const Login = () => {
                                 <div className="position-relative">
                                     <Form.Control
                                         type={showPassword ? 'text' : 'password'}
-                                        className="aura-form-control pe-5"
+                                        name="password"
+                                        className={`aura-form-control pe-5 ${errors.password ? 'is-invalid' : ''}`}
                                         placeholder="••••••••"
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={handlePasswordChange}
+                                        onBlur={handleBlur}
                                         required
                                     />
                                     <Button
@@ -264,6 +340,7 @@ const Login = () => {
                                         <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
                                     </Button>
                                 </div>
+                                {errors.password && <span className="aura-form-error">{errors.password}</span>}
                             </Form.Group>
 
                             <div className="text-end mb-4">

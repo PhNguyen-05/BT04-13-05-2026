@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -106,9 +106,11 @@ const ProductDetail = () => {
     const [actionLoadingKey, setActionLoadingKey] = useState(null);
     const [thumbsSwiper, setThumbsSwiper] = useState(null);
     const [selectedVariantId, setSelectedVariantId] = useState(null);
+    const [loadError, setLoadError] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoadError('');
             try {
                 const [productRes, lineRes, similarRes] = await Promise.all([
                     api.get(`/products/${id}`),
@@ -128,6 +130,8 @@ const ProductDetail = () => {
                 setThumbsSwiper(null);
             } catch (err) {
                 console.error(err);
+                setLoadError(err.response?.data?.message || 'Không thể tải sản phẩm. Kiểm tra backend đang chạy.');
+                setActiveProduct(null);
             }
         };
 
@@ -272,6 +276,17 @@ const ProductDetail = () => {
             alert(`Đã thêm ${orderQuantity} sản phẩm vào giỏ hàng!`);
         }
     };
+
+    if (loadError) {
+        return (
+            <Container className="py-5 text-center">
+                <p className="text-danger mb-3">{loadError}</p>
+                <Button as={Link} to="/shop" className="btn-aura">
+                    Quay lại cửa hàng
+                </Button>
+            </Container>
+        );
+    }
 
     if (!activeProduct || !displayProduct) {
         return (

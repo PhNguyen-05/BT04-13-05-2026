@@ -181,8 +181,9 @@ const Home = () => {
 
                     {categories.slice(0, 5).map((cat) => (
                         <div key={cat._id} className="mb-4">
-                            <div className="d-flex align-items-center mb-3">
-                                <div
+                            <div className="d-flex align-items-center justify-content-between mb-3">
+                                <div className="d-flex align-items-center">
+                                    <div
                                     style={{
                                         width: 120,
                                         height: 80,
@@ -193,14 +194,15 @@ const Home = () => {
                                         marginRight: 16,
                                     }}
                                 />
-                                <div>
+                             
+                                
                                     <h5 className="mb-1">{cat.name}</h5>
+                                    </div>
                                     <Button as={Link} to={`/shop?category=${cat._id}`} className="btn-aura-outline btn-sm">
                                         Xem tất cả
                                     </Button>
-                                </div>
-                            </div>
-
+                                
+                                    </div>
                             {renderProducts(productsByCategory[cat._id] || [], 'Chưa có sản phẩm cho danh mục này.')}
                         </div>
                     ))}

@@ -129,6 +129,13 @@ h1, h2, h3, h4, .font-display {
   gap: 0.5rem;
 }
 
+.aura-brand-logo {
+  height: 44px;
+  width: auto;
+  max-width: 44px;
+  object-fit: contain;
+}
+
 .aura-brand-icon {
   width: 42px;
   height: 42px;
@@ -479,6 +486,20 @@ h1, h2, h3, h4, .font-display {
 .aura-form-control:focus {
   border-color: var(--rose) !important;
   box-shadow: 0 0 0 4px rgba(244, 169, 184, 0.2) !important;
+}
+
+
+.aura-form-control.is-invalid {
+  border-color: #b4232f !important;
+  box-shadow: 0 0 0 4px rgba(180, 35, 47, 0.15) !important;
+}
+
+.aura-form-error {
+  display: block;
+  color: #b4232f;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.35rem;
 }
 
 .aura-form-label {
@@ -1719,13 +1740,14 @@ h1, h2, h3, h4, .font-display {
 }
 
 .aura-shade-item-desc {
-  display: -webkit-box;
+  /* display: -webkit-box;
   color: #6f6165;
   font-size: 0.78rem;
   line-height: 1.45;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  overflow: hidden;
+  overflow: hidden; */
+  display: none;
 }
 
 .aura-shade-item.active .aura-shade-item-name {
@@ -1737,8 +1759,9 @@ h1, h2, h3, h4, .font-display {
 }
 
 .aura-shade-item-actions {
-  grid-template-columns: 52px 1fr;
-  border-top: 1px solid rgba(132, 76, 82, 0.13);
+  /* grid-template-columns: 52px 1fr;
+  border-top: 1px solid rgba(132, 76, 82, 0.13); */
+  display: none;
 }
 
 .aura-shade-action-btn {
