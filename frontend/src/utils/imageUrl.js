@@ -1,10 +1,20 @@
 const FALLBACK_IMG =
     'https://images.unsplash.com/photo-1586495778270-3263b471a0db?w=600&q=80';
 
-/** Đường dẫn cũ (DB chưa seed lại) → thư mục mới trong frontend/public */
+const BRAND_COVERS = {
+    '3ce': '/3ce/bia.jpg',
+    romand: '/romand/bia.jpg',
+    intoyou: '/intoyou/bia.png',
+    merzy: '/merzy/bia.png',
+    bbia: '/bbia/bia.jpg',
+};
+
 const LEGACY_PATH_ALIASES = {
-    '/3ce/bia.jpg': '/3ce/Blur Water Tint/bia.jpg',
-    '/3ce/bìa.jpg': '/3ce/Blur Water Tint/bia.jpg',
+    '/3ce/bia.jpg': BRAND_COVERS['3ce'],
+    '/3ce/bia2.jpg': BRAND_COVERS['3ce'],
+    '/3ce/bia.png': BRAND_COVERS['3ce'],
+    '/3ce/Blur Water Tint/bia.jpg': BRAND_COVERS['3ce'],
+    '/3ce/Velvet Lip Tint Plush/bia.jpg': BRAND_COVERS['3ce'],
     '/3ce/1.jpg': '/3ce/Velvet Lip Tint Plush/1.webp',
     '/3ce/2.jpg': '/3ce/Velvet Lip Tint Plush/2.webp',
     '/3ce/3.jpg': '/3ce/Blur Water Tint/3.jpg',
@@ -17,28 +27,65 @@ const LEGACY_PATH_ALIASES = {
     '/3ce/8.webp': '/3ce/Blur Water Tint/8.webp',
     '/3ce/9.jpg': '/3ce/Blur Water Tint/9.jpg',
     '/3ce/10.jpg': '/3ce/Blur Water Tint/10.jpg',
-    '/romand/bia.jpg': '/romand/The Juicy Lasting Tint/bia.jpg',
-    '/romand/bìa.jpg': '/romand/The Juicy Lasting Tint/bia.jpg',
-    '/intoyou/bia.jpg': '/intoyou/Customized Airy Lip Mud/bia.jpg',
-    '/intoyou/bìa.jpg': '/intoyou/Customized Airy Lip Mud/bia.jpg',
-    '/merzy/bia.jpg': '/merzy/New Watery Dew Tint/bia.jpg',
-    '/bbia/bia.jpg': '/bbia/Last Velvet Lip Tint/bia.jpg',
+    '/romand/bia.jpg': BRAND_COVERS.romand,
+    '/romand/bia2.jpg': BRAND_COVERS.romand,
+    '/romand/bia.png': BRAND_COVERS.romand,
+    '/romand/Dewyful Water Tint/bia.webp': BRAND_COVERS.romand,
+    '/romand/Dewyful Water Tint/bia.jpg': BRAND_COVERS.romand,
+    '/romand/The Juicy Lasting Tint/bia.jpg': BRAND_COVERS.romand,
+    '/romand/Dewyful Water Tint/1.jpg': '/romand/Dewyful Water Tint/1.webp',
+    '/romand/Dewyful Water Tint/2.jpg': '/romand/Dewyful Water Tint/2.webp',
+    '/romand/Dewyful Water Tint/3.jpg': '/romand/Dewyful Water Tint/3.webp',
+    '/romand/Dewyful Water Tint/4.jpg': '/romand/Dewyful Water Tint/4.webp',
+    '/romand/Dewyful Water Tint/5.jpg': '/romand/Dewyful Water Tint/5.webp',
+    '/romand/The Juicy Lasting Tint/1.jpg': '/romand/The Juicy Lasting Tint/1.webp',
+    '/romand/The Juicy Lasting Tint/2.jpg': '/romand/The Juicy Lasting Tint/2.webp',
+    '/romand/The Juicy Lasting Tint/3.jpg': '/romand/The Juicy Lasting Tint/3.webp',
+    '/romand/The Juicy Lasting Tint/4.jpg': '/romand/The Juicy Lasting Tint/4.webp',
+    '/romand/The Juicy Lasting Tint/5.jpg': '/romand/The Juicy Lasting Tint/5.webp',
+    '/romand/The Juicy Lasting Tint/6.jpg': '/romand/The Juicy Lasting Tint/6.webp',
+    '/romand/The Juicy Lasting Tint/7.jpg': '/romand/The Juicy Lasting Tint/7.webp',
+    '/romand/The Juicy Lasting Tint/8.jpg': '/romand/The Juicy Lasting Tint/8.webp',
+    '/romand/The Juicy Lasting Tint/9.jpg': '/romand/The Juicy Lasting Tint/9.webp',
+    '/romand/The Juicy Lasting Tint/10.jpg': '/romand/The Juicy Lasting Tint/10.webp',
+    '/intoyou/bia.jpg': BRAND_COVERS.intoyou,
+    '/intoyou/bia.png': BRAND_COVERS.intoyou,
+    '/intoyou/Customized Airy Lip Mud/bia.jpg': BRAND_COVERS.intoyou,
+    '/intoyou/SHERO Super Matte Lip/bia.jpg': BRAND_COVERS.intoyou,
+    '/intoyou/SHERO Super Matte Lip/3.webp': '/intoyou/SHERO Super Matte Lip/3.jpg',
+    '/intoyou/SHERO Super Matte Lip/4.webp': '/intoyou/SHERO Super Matte Lip/4.jpg',
+    '/merzy/bia.jpg': BRAND_COVERS.merzy,
+    '/merzy/bia.png': BRAND_COVERS.merzy,
+    '/merzy/bia2.jpg': BRAND_COVERS.merzy,
+    '/merzy/New Watery Dew Tint/bia.jpg': BRAND_COVERS.merzy,
+    '/merzy/Water Fit Blur Tint/bia.jpg': BRAND_COVERS.merzy,
+    '/bbia/bia.jpg': BRAND_COVERS.bbia,
+    '/bbia/bia2.jpg': BRAND_COVERS.bbia,
+    '/bbia/bia.png': BRAND_COVERS.bbia,
+    '/bbia/Glow Tint Edition/bia.jpg': BRAND_COVERS.bbia,
+    '/bbia/Last Velvet Lip Tint/bia.jpg': BRAND_COVERS.bbia,
 };
 
-/** Gợi ý ảnh theo tên sản phẩm (khi DB còn tên cũ) */
 const PRODUCT_NAME_COVERS = [
-    { match: /3ce.*blur water/i, path: '/3ce/Blur Water Tint/bia.jpg' },
-    { match: /3ce.*velvet/i, path: '/3ce/Velvet Lip Tint Plush/bia.jpg' },
-    { match: /3ce.*soft lip|3ce.*glaze/i, path: '/3ce/Blur Water Tint/bia.jpg' },
-    { match: /bbia.*glow/i, path: '/bbia/Glow Tint Edition/bia.jpg' },
-    { match: /bbia.*velvet/i, path: '/bbia/Last Velvet Lip Tint/bia.jpg' },
-    { match: /into you.*airy|into you.*mud/i, path: '/intoyou/Customized Airy Lip Mud/bia.jpg' },
+    { match: /3ce.*blur water/i, path: '/3ce/Blur Water Tint/1.jpg' },
+    { match: /3ce.*velvet/i, path: '/3ce/Velvet Lip Tint Plush/1.webp' },
+    { match: /3ce.*soft lip|3ce.*glaze/i, path: '/3ce/Blur Water Tint/1.jpg' },
+    { match: /bbia.*glow/i, path: '/bbia/Glow Tint Edition/2.jpg' },
+    { match: /bbia.*velvet/i, path: '/bbia/Last Velvet Lip Tint/2.webp' },
+    { match: /into you.*airy|into you.*mud/i, path: '/intoyou/Customized Airy Lip Mud/1.jpg' },
     { match: /into you.*shero/i, path: '/intoyou/SHERO Super Matte Lip/1.webp' },
-    { match: /merzy.*watery dew|merzy.*new watery/i, path: '/merzy/New Watery Dew Tint/bia.jpg' },
-    { match: /merzy.*water fit|merzy.*blur/i, path: '/merzy/Water Fit Blur Tint/bia.jpg' },
-    { match: /romand.*dewyful/i, path: '/romand/Dewyful Water Tint/bia.webp' },
-    { match: /romand.*juicy/i, path: '/romand/The Juicy Lasting Tint/bia.jpg' },
+    { match: /merzy.*watery dew|merzy.*new watery/i, path: '/merzy/New Watery Dew Tint/20.png' },
+    { match: /merzy.*water fit|merzy.*blur/i, path: '/merzy/Water Fit Blur Tint/1.jpg' },
+    { match: /romand.*dewyful/i, path: '/romand/Dewyful Water Tint/1.webp' },
+    { match: /romand.*juicy/i, path: '/romand/The Juicy Lasting Tint/1.webp' },
+    { match: /romand.*flash.*oil/i, path: '/romand/Juicy Flash Lip Oil/1.webp' },
+    { match: /romand.*glasting water/i, path: '/romand/Glasting Water Tint/1.webp' },
+    { match: /romand.*glasting color/i, path: '/romand/Glasting Color Gloss/1.webp' },
 ];
+
+function isCoverImage(path = '') {
+    return /(^|\/)(bia|bìa|cover)\.(jpe?g|png|webp)$/i.test(decodePath(path));
+}
 
 function decodePath(path) {
     let normalized = path.trim();
@@ -49,28 +96,22 @@ function decodePath(path) {
             normalized = decodeURIComponent(normalized);
         }
     } catch {
-        /* ignore */
+        /* keep the original path */
     }
     return normalized;
 }
 
-function applyLegacyAlias(path) {
-    const decoded = decodePath(path);
-    if (LEGACY_PATH_ALIASES[decoded]) return LEGACY_PATH_ALIASES[decoded];
-    if (LEGACY_PATH_ALIASES[path]) return LEGACY_PATH_ALIASES[path];
+function normalizeBiaName(path) {
+    return path.replace(/\/b(?:i|%C3%AC|ì|Ã¬)a\.(jpg|jpeg|png|webp)$/i, '/bia.$1');
+}
 
-    // /3ce/5.jpg → flat file cũ
-    const flat = decoded.match(/^\/(3ce|romand|intoyou|merzy|bbia)\/([^/]+)\.(jpg|webp|png)$/i);
-    if (flat && LEGACY_PATH_ALIASES[decoded]) {
-        return LEGACY_PATH_ALIASES[decoded];
-    }
+function applyLegacyAlias(path) {
+    const decoded = normalizeBiaName(decodePath(path));
+    if (LEGACY_PATH_ALIASES[decoded]) return LEGACY_PATH_ALIASES[decoded];
 
     return decoded;
 }
 
-/**
- * Chuẩn hóa đường dẫn ảnh tĩnh (frontend/public).
- */
 export function resolveImageUrl(path, fallback = FALLBACK_IMG) {
     if (!path || typeof path !== 'string') return fallback;
 
@@ -92,7 +133,12 @@ export function resolveImageList(paths, fallback = FALLBACK_IMG) {
     return paths.map((p) => resolveImageUrl(p, fallback));
 }
 
-/** Danh sách URL thử lần lượt khi ảnh lỗi (ưu tiên ảnh bìa) */
+export function resolveProductImageList(paths, fallback = FALLBACK_IMG) {
+    if (!Array.isArray(paths) || !paths.length) return [fallback];
+    const productImages = paths.filter((p) => !isCoverImage(p));
+    return (productImages.length ? productImages : paths).map((p) => resolveImageUrl(p, fallback));
+}
+
 export function getProductImageCandidates(product) {
     const urls = [];
     const seen = new Set();
@@ -108,6 +154,7 @@ export function getProductImageCandidates(product) {
 
     const images = product?.images;
     if (Array.isArray(images) && images.length) {
+        images.filter((f) => !isCoverImage(f)).forEach(add);
         const cover = images.find((f) => /bia|bìa|cover/i.test(f)) || images[0];
         add(cover);
         images.forEach(add);

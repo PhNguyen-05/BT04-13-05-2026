@@ -62,6 +62,16 @@ const getShadeLabel = (name, index) => {
 };
 
 const getShadeCopy = (product, index) => {
+    if (product?.shadeName) {
+        return {
+            shadeCode: product.shadeCode || getShadeLabel(product.name, index),
+            shadeName: product.shadeName,
+            colorFamily: '',
+            swatch: product.colors?.[0] || GENERIC_SHADE_SWATCHES[index % GENERIC_SHADE_SWATCHES.length],
+            description: product.description || 'Tone son dễ dùng, lên màu hài hòa và phù hợp để phối cùng nhiều phong cách trang điểm hằng ngày.',
+        };
+    }
+
     const custom = product?.lineSlug ? LINE_SHADE_COPY[product.lineSlug]?.[index] : null;
     if (custom) return custom;
 
@@ -71,7 +81,7 @@ const getShadeCopy = (product, index) => {
     return {
         shadeCode,
         shadeName,
-        colorFamily: 'Màu son',
+        colorFamily: '',
         swatch: GENERIC_SHADE_SWATCHES[index % GENERIC_SHADE_SWATCHES.length],
         description: product?.description || 'Tone son dễ dùng, lên màu hài hòa và phù hợp để phối cùng nhiều phong cách trang điểm hằng ngày.',
     };
@@ -136,20 +146,6 @@ const ProductDetail = () => {
         [activeProduct, lineProducts]
     );
 
-    const selectedShadeCopy = useMemo(() => {
-        if (!activeProduct) return null;
-        if (selectedVariant) {
-            return {
-                shadeCode: selectedVariant.color || '',
-                shadeName: selectedVariant.colorName || selectedVariant.color || 'Màu đã chọn',
-                colorFamily: '',
-                swatch: selectedVariant.color || activeProduct.colors?.[0] || GENERIC_SHADE_SWATCHES[0],
-                description: selectedVariant.description || activeProduct.description,
-            };
-        }
-
-        return getShadeCopy(activeProduct, selectedProductIndex);
-    }, [activeProduct, selectedProductIndex, selectedVariant]);
 
     const pickerItems = useMemo(() => {
         if (!activeProduct) return [];
@@ -289,9 +285,6 @@ const ProductDetail = () => {
     const discountPercent = activeProduct.originalPrice
         ? Math.round(100 - ((activeProduct.price || 0) / activeProduct.originalPrice) * 100)
         : 0;
-    const shadeTitle = selectedVariant
-        ? selectedVariant.colorName || selectedVariant.color
-        : getShadeDisplayName(activeProduct, selectedProductIndex);
 
     return (
         <Container className="py-4 product-detail-page">
@@ -357,16 +350,6 @@ const ProductDetail = () => {
                             <h1>{activeProduct.lineName || activeProduct.name}</h1>
                         </div>
 
-                        {selectedShadeCopy && (
-                            <div className="product-shade-spotlight">
-                                <span className="product-shade-swatch" style={{ background: selectedShadeCopy.swatch }} />
-                                <div>
-                                    <p className="product-shade-kicker">Đang xem</p>
-                                    <h2>{shadeTitle}</h2>
-                                    <p>{selectedShadeCopy.description}</p>
-                                </div>
-                            </div>
-                        )}
 
                         <div className="product-meta-row">
                             <span className="rating-score">5.0</span>
@@ -476,7 +459,7 @@ const ProductDetail = () => {
 
             <section className="product-description-panel">
                 <h5>Mô tả chi tiết</h5>
-                <p>{selectedShadeCopy?.description || activeProduct.description || 'Son môi cao cấp Aura Lips, màu chuẩn, bền màu và dưỡng môi.'}</p>
+                <p>{activeProduct.description || 'Son môi cao cấp Aura Lips, màu chuẩn, bền màu và dưỡng môi.'}</p>
             </section>
 
             {similar.length > 0 && (

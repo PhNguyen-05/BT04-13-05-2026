@@ -1435,19 +1435,29 @@ h1, h2, h3, h4, .font-display {
 }
 
 .aura-category-card-img-wrap {
-  aspect-ratio: 1;
+  height: 140px;
   overflow: hidden;
-  background: var(--blush);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  padding: 0.75rem 1rem 0.25rem;
 }
 
-.aura-category-card-img-wrap img {
+.aura-category-card-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.4s ease;
 }
 
-.aura-category-card:hover .aura-category-card-img-wrap img {
+.aura-category-card-img--romand,
+.aura-category-card-img--intoyou,
+.aura-category-card-img--merzy {
+  width: 76%;
+  height: 76%;
+}
+
+.aura-category-card:hover .aura-category-card-img {
   transform: scale(1.08);
 }
 
