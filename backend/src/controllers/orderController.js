@@ -1,6 +1,7 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
+const User = require('../models/User');
 
 const THIRTY_MINUTES = 30 * 60 * 1000;
 const USER_CANCEL_WINDOW_MS = THIRTY_MINUTES;
@@ -12,6 +13,33 @@ const appendStatus = (order, status, note) => {
     if (!Array.isArray(order.statusHistory)) order.statusHistory = [];
     order.statusHistory.push({ status, note, changedAt: new Date() });
 };
+
+const getItemKey = (productId, variantId) => `${productId}-${variantId || 'default'}`;
+
+const getCartItemKey = (item) => {
+    const productId = item.product?._id || item.product;
+    return getItemKey(productId.toString(), item.variant?.toString());
+};
+
+const getSelectedKeys = (selectedItems = []) => {
+    if (!Array.isArray(selectedItems)) return new Set();
+
+    return new Set(
+        selectedItems
+            .filter((item) => item?.productId)
+            .map((item) => getItemKey(item.productId.toString(), item.variantId?.toString()))
+    );
+};
+
+const sanitizeUser = (user) => ({
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    phone: user.phone || '',
+    address: user.address || '',
+    isVerified: user.isVerified !== false,
+});
 
 const autoConfirmOrder = async (order) => {
     if (!order || order.status !== 'pending') return order;
@@ -53,7 +81,7 @@ const restockOrder = async (order) => {
 
 const createOrder = async (req, res) => {
     try {
-        const { shippingAddress, paymentMethod = 'COD', shippingFee = 0 } = req.body;
+        const { shippingAddress, paymentMethod = 'COD', shippingFee = 0, selectedItems = [] } = req.body;
 
         if (!shippingAddress?.fullName || !shippingAddress?.phone || !shippingAddress?.address) {
             return res.status(400).json({ message: 'Vui long nhap day du thong tin giao hang' });
@@ -68,10 +96,19 @@ const createOrder = async (req, res) => {
             return res.status(400).json({ message: 'Gio hang trong' });
         }
 
+        const selectedKeys = getSelectedKeys(selectedItems);
+        const cartItems = selectedKeys.size > 0
+            ? cart.items.filter((item) => selectedKeys.has(getCartItemKey(item)))
+            : cart.items;
+
+        if (cartItems.length === 0) {
+            return res.status(400).json({ message: 'Khong tim thay san pham da chon trong gio hang' });
+        }
+
         let totalAmount = 0;
         const stockUpdates = [];
 
-        const orderItems = cart.items.map((item) => {
+        const orderItems = cartItems.map((item) => {
             const product = item.product;
             const quantity = Math.max(1, Number(item.quantity) || 1);
             let availableStock = product.stock;
@@ -139,9 +176,28 @@ const createOrder = async (req, res) => {
             );
         }));
 
-        await Cart.findOneAndDelete({ user: req.user.id });
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.id,
+            {
+                name: shippingAddress.fullName.trim(),
+                phone: shippingAddress.phone.trim(),
+                address: shippingAddress.address.trim(),
+            },
+            { new: true, runValidators: true }
+        );
 
-        res.status(201).json({ message: 'Dat hang thanh cong', order });
+        if (selectedKeys.size > 0 && cartItems.length < cart.items.length) {
+            cart.items = cart.items.filter((item) => !selectedKeys.has(getCartItemKey(item)));
+            await cart.save();
+        } else {
+            await Cart.findOneAndDelete({ user: req.user.id });
+        }
+
+        res.status(201).json({
+            message: 'Dat hang thanh cong',
+            order,
+            user: updatedUser ? sanitizeUser(updatedUser) : undefined,
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -149,7 +149,7 @@ const login = async (req, res) => {
             message: 'Đăng nhập thành công',
             token,
             user: userData,
-            redirectUrl: getProfileUrl(user.role),
+            redirectUrl: '/',
             profileUrl: getProfileUrl(user.role),
         });
     } catch (error) {

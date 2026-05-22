@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
+import { Toast, ToastContainer } from 'react-bootstrap';
 import api from '../services/api.service';
 import { useAuth } from '../hooks/useAuth';
 
@@ -7,7 +8,12 @@ export const CartContext = createContext();
 export const CartProvider = ({ children }) => {
     const [cart, setCart] = useState({ items: [] });
     const [loading, setLoading] = useState(false);
+    const [notice, setNotice] = useState({ show: false, message: '', variant: 'success' });
     const { user } = useAuth();
+
+    const showCartNotice = (message, variant = 'success') => {
+        setNotice({ show: true, message, variant });
+    };
 
     // Lấy giỏ hàng khi user đăng nhập
     useEffect(() => {
@@ -41,9 +47,14 @@ export const CartProvider = ({ children }) => {
         try {
             const res = await api.post('/cart/add', { productId, quantity, variantId });
             setCart(res.data);
+            showCartNotice(
+                quantity > 1
+                    ? `Đã thêm ${quantity} sản phẩm vào giỏ hàng.`
+                    : 'Đã thêm sản phẩm vào giỏ hàng.'
+            );
             return true;
         } catch (error) {
-            alert(error.response?.data?.message || 'Không thể thêm vào giỏ hàng');
+            showCartNotice(error.response?.data?.message || 'Không thể thêm vào giỏ hàng', 'danger');
             return false;
         }
     };
@@ -86,17 +97,33 @@ export const CartProvider = ({ children }) => {
     };
 
     return (
-        <CartContext.Provider value={{
-            cart,
-            loading,
-            addToCart,
-            removeFromCart,
-            updateCartQuantity,
-            getTotalItems,
-            getTotalPrice,
-            refreshCart: fetchCart
-        }}>
-            {children}
-        </CartContext.Provider>
+        <>
+            <CartContext.Provider value={{
+                cart,
+                loading,
+                addToCart,
+                removeFromCart,
+                updateCartQuantity,
+                getTotalItems,
+                getTotalPrice,
+                refreshCart: fetchCart
+            }}>
+                {children}
+            </CartContext.Provider>
+            <ToastContainer position="top-end" className="cart-toast-container p-3">
+                <Toast
+                    show={notice.show}
+                    onClose={() => setNotice((prev) => ({ ...prev, show: false }))}
+                    delay={2600}
+                    autohide
+                    className={`cart-toast cart-toast-${notice.variant}`}
+                >
+                    <Toast.Body>
+                        <i className={`bi ${notice.variant === 'danger' ? 'bi-exclamation-circle' : 'bi-check-circle-fill'}`} />
+                        <span>{notice.message}</span>
+                    </Toast.Body>
+                </Toast>
+            </ToastContainer>
+        </>
     );
 };

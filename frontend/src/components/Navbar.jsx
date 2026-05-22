@@ -24,6 +24,7 @@ const Navbar = () => {
 
     const isActive = (path) => location.pathname === path;
     const cartCount = getTotalItems();
+    const profilePath = isAdmin ? '/admin/profile' : '/user/profile';
 
     return (
         <BootstrapNavbar
@@ -74,24 +75,21 @@ const Navbar = () => {
                                     <i className="bi bi-receipt-cutoff me-1" />
                                     Đơn hàng
                                 </Nav.Link>
-                                <Nav.Link
-                                    as={Link}
-                                    to={isAdmin ? '/admin/profile' : '/user/profile'}
-                                    className={`aura-nav-link ${isActive(isAdmin ? '/admin/profile' : '/user/profile') ? 'active' : ''}`}
-                                >
-                                    <i className="bi bi-person-heart me-1" />
-                                    Hồ sơ
-                                </Nav.Link>
                                 {isAdmin && (
                                     <Nav.Link as={Link} to="/admin/orders" className={`aura-nav-link ${isActive('/admin/orders') ? 'active' : ''}`}>
                                         <i className="bi bi-gear me-1" />
                                         Quản trị
                                     </Nav.Link>
                                 )}
-                                <span className="aura-user-pill d-none d-xl-inline" title={user.email}>
+                                <Nav.Link
+                                    as={Link}
+                                    to={profilePath}
+                                    className={`aura-user-pill d-inline-flex align-items-center gap-1 text-decoration-none ${isActive(profilePath) ? 'active' : ''}`}
+                                    title={user.email}
+                                >
                                     <i className="bi bi-person-heart me-1 text-aura" />
                                     <strong>{user.name}</strong>
-                                </span>
+                                </Nav.Link>
                                 <Button className="btn-aura-outline btn-sm" onClick={handleLogout}>
                                     <i className="bi bi-box-arrow-right me-1" />
                                     Đăng xuất

@@ -36,7 +36,9 @@ const ProductCard = ({ product, showQuickActions = false }) => {
         setAdding(false);
 
         if (success && buyNow) {
-            navigate('/checkout');
+            const checkoutSelection = [{ productId: product._id, variantId: null }];
+            sessionStorage.setItem('checkoutSelection', JSON.stringify(checkoutSelection));
+            navigate('/checkout', { state: { selectedItems: checkoutSelection } });
         }
     };
 

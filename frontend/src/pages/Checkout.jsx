@@ -1,15 +1,39 @@
 import { useContext, useMemo, useState } from 'react';
 import { Alert, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { CartContext } from '../context/CartContext';
 import api from '../services/api.service';
 import { resolveImageUrl } from '../utils/imageUrl';
 
+const getCartItemKey = (item) => `${item.product?._id || item.product}-${item.variant || 'default'}`;
+
+const getSelectionKey = (item) => `${item.productId}-${item.variantId || 'default'}`;
+
+const toCheckoutSelection = (item) => ({
+    productId: item.product?._id || item.product,
+    variantId: item.variant || null,
+});
+
+const loadCheckoutSelection = (location) => {
+    const fromState = location.state?.selectedItems;
+    if (Array.isArray(fromState) && fromState.length > 0) return fromState;
+
+    try {
+        const stored = sessionStorage.getItem('checkoutSelection');
+        const parsed = stored ? JSON.parse(stored) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+};
+
 const Checkout = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
-    const { cart, loading, getTotalPrice, refreshCart } = useContext(CartContext);
+    const location = useLocation();
+    const { user, updateUser } = useAuth();
+    const { cart, loading, refreshCart } = useContext(CartContext);
+    const [checkoutSelection] = useState(() => loadCheckoutSelection(location));
     const [form, setForm] = useState({
         fullName: user?.name || '',
         phone: user?.phone || '',
@@ -21,8 +45,13 @@ const Checkout = () => {
     const [message, setMessage] = useState('');
     const [order, setOrder] = useState(null);
 
-    const items = cart.items || [];
-    const subtotal = getTotalPrice();
+    const allItems = useMemo(() => cart.items || [], [cart.items]);
+    const selectionKeys = useMemo(() => checkoutSelection.map(getSelectionKey), [checkoutSelection]);
+    const items = useMemo(() => {
+        if (!selectionKeys.length) return allItems;
+        return allItems.filter((item) => selectionKeys.includes(getCartItemKey(item)));
+    }, [allItems, selectionKeys]);
+    const subtotal = items.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
     const shippingFee = subtotal >= 300000 || subtotal === 0 ? 0 : 25000;
     const grandTotal = subtotal + shippingFee;
 
@@ -44,6 +73,7 @@ const Checkout = () => {
         setMessage('');
         try {
             const res = await api.post('/orders', {
+                selectedItems: items.map(toCheckoutSelection),
                 shippingAddress: {
                     fullName: form.fullName.trim(),
                     phone: form.phone.trim(),
@@ -54,6 +84,8 @@ const Checkout = () => {
                 shippingFee,
             });
             setOrder(res.data.order);
+            if (res.data.user) updateUser(res.data.user);
+            sessionStorage.removeItem('checkoutSelection');
             await refreshCart();
         } catch (error) {
             setMessage(error.response?.data?.message || 'Không thể đặt hàng. Vui lòng thử lại.');
@@ -103,12 +135,17 @@ const Checkout = () => {
     }
 
     if (!items.length) {
+        const hasCartItems = allItems.length > 0;
         return (
             <Container className="py-5 text-center">
-                <h2>Giỏ hàng đang trống</h2>
-                <p className="text-muted">Hãy chọn một màu son trước khi thanh toán.</p>
-                <Button as={Link} to="/shop" className="btn-aura">
-                    Quay lại cửa hàng
+                <h2>{hasCartItems ? 'Sản phẩm đã chọn không còn trong giỏ hàng' : 'Giỏ hàng đang trống'}</h2>
+                <p className="text-muted">
+                    {hasCartItems
+                        ? 'Vui lòng quay lại giỏ hàng và chọn lại sản phẩm muốn mua.'
+                        : 'Hãy chọn một màu son trước khi thanh toán.'}
+                </p>
+                <Button as={Link} to={hasCartItems ? '/cart' : '/shop'} className="btn-aura">
+                    {hasCartItems ? 'Quay lại giỏ hàng' : 'Quay lại cửa hàng'}
                 </Button>
             </Container>
         );
@@ -131,7 +168,7 @@ const Checkout = () => {
                                 <h5 className="fw-bold mb-3">Thông tin giao hàng</h5>
                                 <Row className="g-3">
                                     <Col md={6}>
-                                        <Form.Label>Họ và tên</Form.Label>
+                                        <Form.Label>Họ và tên <span className="form-required">*</span></Form.Label>
                                         <Form.Control
                                             className="aura-form-control"
                                             name="fullName"
@@ -141,7 +178,7 @@ const Checkout = () => {
                                         />
                                     </Col>
                                     <Col md={6}>
-                                        <Form.Label>Số điện thoại</Form.Label>
+                                        <Form.Label>Số điện thoại <span className="form-required">*</span></Form.Label>
                                         <Form.Control
                                             className="aura-form-control"
                                             name="phone"
@@ -151,7 +188,7 @@ const Checkout = () => {
                                         />
                                     </Col>
                                     <Col xs={12}>
-                                        <Form.Label>Địa chỉ nhận hàng</Form.Label>
+                                        <Form.Label>Địa chỉ nhận hàng <span className="form-required">*</span></Form.Label>
                                         <Form.Control
                                             className="aura-form-control"
                                             name="address"

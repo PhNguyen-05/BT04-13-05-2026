@@ -269,11 +269,10 @@ const ProductDetail = () => {
         setActionLoadingKey(null);
 
         if (success && buyNow) {
-            navigate('/checkout');
+            const checkoutSelection = [{ productId: item.productId, variantId: item.variantId || null }];
+            sessionStorage.setItem('checkoutSelection', JSON.stringify(checkoutSelection));
+            navigate('/checkout', { state: { selectedItems: checkoutSelection } });
             return;
-        }
-        if (success) {
-            alert(`Đã thêm ${orderQuantity} sản phẩm vào giỏ hàng!`);
         }
     };
 
