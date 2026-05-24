@@ -88,6 +88,7 @@ const path = require('path');
 const cors = require('cors');
 const connectDB = require('./config/database');
 const { verifyEmailConnection } = require('./services/emailService');
+const { startOrderAutoConfirmJob } = require('./services/orderStatusService');
 
 const app = express();
 
@@ -102,7 +103,11 @@ app.use(express.static(staticDir));
 app.use('/public', express.static(staticDir));
 
 // Kết nối Database
-connectDB();
+connectDB()
+    .then(() => startOrderAutoConfirmJob())
+    .catch((error) => {
+        console.error('[Aura Lips] Khong the khoi dong ket noi database:', error.message);
+    });
 
 // ==================== ROUTES ====================
 app.use('/api/auth', require('./routes/auth'));

@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Row, Col, Form, Button } from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
+import AuthLayout from '../components/AuthLayout';
 import api from '../services/api.service';
 import { useAuth } from '../hooks/useAuth';
+
+const LOGIN_IMAGES = [
+    '/login/login1.jpg',
+    '/login/login2.jpg',
+    '/login/login3.jpg',
+];
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -17,18 +24,11 @@ const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    
-    const loginImages = [
-        '/login/login1.jpg',
-        '/login/login2.jpg',
-        '/login/login3.jpg',
-    ];
-
     // Random ảnh thay đổi mỗi 10 giây
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentImageIndex((prevIndex) => 
-                (prevIndex + 1) % loginImages.length
+                (prevIndex + 1) % LOGIN_IMAGES.length
             );
         }, 10000); // 10000ms = 10 giây
 
@@ -82,8 +82,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         // Validate all fields
-        let newErrors = {};
-        newErrors = validateField('email', email);
+        const newErrors = validateField('email', email);
         const passwordErrors = validateField('password', password);
         Object.assign(newErrors, passwordErrors);
         
@@ -105,7 +104,12 @@ const Login = () => {
             login(res.data.user, res.data.token);
             const candidate = location.state?.from;
             const isProfilePath = candidate === '/user/profile' || candidate === '/admin/profile' || candidate === '/profile';
-            const target = candidate && !isProfilePath ? candidate : '/';
+            const roleProfileUrl = res.data.redirectUrl || res.data.profileUrl || (res.data.user?.role === 'admin' ? '/admin/profile' : '/user/profile');
+            const target = candidate && !isProfilePath
+                ? candidate
+                : res.data.user?.role === 'admin'
+                    ? roleProfileUrl
+                    : '/';
             navigate(target, { replace: true });
         } catch (error) {
             const data = error.response?.data;
@@ -126,131 +130,105 @@ const Login = () => {
     };
 
     return (
-        <div className="aura-auth-page">
-            <Row className="g-0 min-vh-100">
-                {/* Phần Form */}
-                <Col lg={5} className="aura-auth-form-side">
-                    <div className="aura-auth-blob aura-auth-blob-1" />
-                    <div className="aura-auth-blob aura-auth-blob-2" />
+        <AuthLayout
+            logoIcon="bi-heart-fill"
+            title="Chào mừng trở lại"
+            subtitle="Đăng nhập để khám phá bộ sưu tập son pastel dễ thương nhất"
+            image={LOGIN_IMAGES[currentImageIndex]}
+            imageAlt="Son môi Aura Lips"
+            imageKey={currentImageIndex}
+            visualBadge="✨ Bộ sưu tập mới"
+            visualTitle="Vẻ đẹp bắt đầu từ đôi môi"
+            visualSubtitle="Hàng trăm sắc son pastel — dịu dàng, quyến rũ, dễ thương như chính bạn."
+            visualChildren={(
+                <>
+                    <span className="aura-deco-heart" style={{ top: '15%', right: '12%' }}>💗</span>
+                    <span className="aura-deco-heart" style={{ top: '40%', left: '8%', animationDelay: '1s' }}>🌸</span>
+                </>
+            )}
+        >
+            <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3">
+                    <Form.Label className="aura-form-label">Email</Form.Label>
+                    <Form.Control
+                        type="email"
+                        name="email"
+                        className={`aura-form-control ${errors.email ? 'is-invalid' : ''}`}
+                        placeholder="ban@email.com"
+                        value={email}
+                        onChange={handleEmailChange}
+                        onBlur={handleBlur}
+                        required
+                    />
+                    {errors.email && <span className="aura-form-error">{errors.email}</span>}
+                </Form.Group>
 
-                    <div className="aura-auth-card animate-fade-in-up">
-                        <div className="aura-auth-logo animate-float">
-                            <i className="bi bi-heart-fill" />
-                        </div>
-
-                        <h2 className="text-center font-display mb-1">Chào mừng trở lại</h2>
-                        <p className="text-center text-muted mb-4">
-                            Đăng nhập để khám phá bộ sưu tập son pastel dễ thương nhất
-                        </p>
-
-                        <Form onSubmit={handleSubmit}>
-                            <Form.Group className="mb-3">
-                                <Form.Label className="aura-form-label">Email</Form.Label>
-                                <Form.Control
-                                    type="email"
-                                    name="email"
-                                    className={`aura-form-control ${errors.email ? 'is-invalid' : ''}`}
-                                    
-                                    placeholder="ban@email.com"
-                                    value={email}
-                                    onChange={handleEmailChange}
-                                    onBlur={handleBlur}
-                                    
-                                    required
-                                />
-                                {errors.email && <span className="aura-form-error">{errors.email}</span>}
-                            </Form.Group>
-
-                            <Form.Group className="mb-3">
-                                <Form.Label className="aura-form-label">Mật khẩu</Form.Label>
-                                <div className="position-relative">
-                                    <Form.Control
-                                        type={showPassword ? 'text' : 'password'}
-                                        name="password"
-                                        className={`aura-form-control pe-5 ${errors.password ? 'is-invalid' : ''}`}
-                                        placeholder="••••••••"
-                                        value={password}
-                                        onChange={handlePasswordChange}
-                                        onBlur={handleBlur}
-                                        required
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="link"
-                                        className="position-absolute end-0 top-50 translate-middle-y text-muted"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                    >
-                                        <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
-                                    </Button>
-                                </div>
-                                {errors.password && <span className="aura-form-error">{errors.password}</span>}
-                            </Form.Group>
-
-                            <div className="text-end mb-4">
-                                <Link to="/forgot-password" className="link-aura small">
-                                    Quên mật khẩu?
-                                </Link>
-                            </div>
-
-                            <Button type="submit" className="btn-aura w-100 py-3 mb-3" disabled={loading}>
-                                {loading ? (
-                                    <>
-                                        <span className="spinner-border spinner-border-sm me-2" />
-                                        Đang đăng nhập...
-                                    </>
-                                ) : (
-                                    <>
-                                        <i className="bi bi-box-arrow-in-right me-2" />
-                                        Đăng nhập
-                                    </>
-                                )}
-                            </Button>
-                        </Form>
-
-                        <div className="aura-divider">hoặc</div>
-
-                        <div className="d-grid gap-2">
-                            <Button
-                                type="button"
-                                className="btn-aura-ghost py-2"
-                                onClick={() => alert('Đăng nhập Google đang được phát triển.')}
-                            >
-                                <i className="bi bi-google me-2" />
-                                Tiếp tục với Google
-                            </Button>
-                        </div>
-
-                        <p className="text-center mt-4 mb-0">
-                            Chưa có tài khoản?{' '}
-                            <Link to="/register" className="link-aura">
-                                Đăng ký ngay
-                            </Link>
-                        </p>
-                    </div>
-                </Col>
-
-                {/* Phần Hình ảnh bên phải - Random mỗi 5 giây */}
-                <Col lg={7} className="d-none d-lg-block p-0">
-                    <div className="aura-auth-visual">
-                        <img 
-                            src={loginImages[currentImageIndex]} 
-                            alt="Son môi Aura Lips" 
-                            key={currentImageIndex} 
+                <Form.Group className="mb-3">
+                    <Form.Label className="aura-form-label">Mật khẩu</Form.Label>
+                    <div className="position-relative">
+                        <Form.Control
+                            type={showPassword ? 'text' : 'password'}
+                            name="password"
+                            className={`aura-form-control pe-5 ${errors.password ? 'is-invalid' : ''}`}
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={handlePasswordChange}
+                            onBlur={handleBlur}
+                            required
                         />
-                        <div className="aura-auth-visual-overlay" />
-                        <div className="aura-auth-visual-content animate-fade-in-up delay-2">
-                            <span className="aura-hero-badge">✨ Bộ sưu tập mới</span>
-                            <h2 className="font-display">Vẻ đẹp bắt đầu từ đôi môi</h2>
-                            <p className="lead mb-0" style={{ color: 'var(--text-soft)' }}>
-                                Hàng trăm sắc son pastel — dịu dàng, quyến rũ, dễ thương như chính bạn.
-                            </p>
-                        </div>
-                        <span className="aura-deco-heart" style={{ top: '15%', right: '12%' }}>💗</span>
-                        <span className="aura-deco-heart" style={{ top: '40%', left: '8%', animationDelay: '1s' }}>🌸</span>
+                        <Button
+                            type="button"
+                            variant="link"
+                            className="position-absolute end-0 top-50 translate-middle-y text-muted"
+                            onClick={() => setShowPassword(!showPassword)}
+                        >
+                            <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
+                        </Button>
                     </div>
-                </Col>
-            </Row>
-        </div>
+                    {errors.password && <span className="aura-form-error">{errors.password}</span>}
+                </Form.Group>
+
+                <div className="text-end mb-4">
+                    <Link to="/forgot-password" className="link-aura small">
+                        Quên mật khẩu?
+                    </Link>
+                </div>
+
+                <Button type="submit" className="btn-aura w-100 py-3 mb-3" disabled={loading}>
+                    {loading ? (
+                        <>
+                            <span className="spinner-border spinner-border-sm me-2" />
+                            Đang đăng nhập...
+                        </>
+                    ) : (
+                        <>
+                            <i className="bi bi-box-arrow-in-right me-2" />
+                            Đăng nhập
+                        </>
+                    )}
+                </Button>
+            </Form>
+
+            <div className="aura-divider">hoặc</div>
+
+            <div className="d-grid gap-2">
+                <Button
+                    type="button"
+                    className="btn-aura-ghost py-2"
+                    onClick={() => alert('Đăng nhập Google đang được phát triển.')}
+                >
+                    <i className="bi bi-google me-2" />
+                    Tiếp tục với Google
+                </Button>
+            </div>
+
+            <p className="text-center mt-4 mb-0">
+                Chưa có tài khoản?{' '}
+                <Link to="/register" className="link-aura">
+                    Đăng ký ngay
+                </Link>
+            </p>
+        </AuthLayout>
     );
 };
 
