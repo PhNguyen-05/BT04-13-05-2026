@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo, useContext } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import { Card, Button, Badge } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { getProductImageCandidates, FALLBACK_IMG } from '../utils/imageUrl';
+import { formatCurrency } from '../utils/formatters';
 import { CartContext } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 
@@ -10,18 +11,23 @@ const ProductCard = ({ product, showQuickActions = false }) => {
     const { user } = useAuth();
     const { addToCart } = useContext(CartContext);
     const candidates = useMemo(() => getProductImageCandidates(product), [product]);
-    const [attempt, setAttempt] = useState(0);
+    const imageKey = `${product._id}-${Array.isArray(product.images) ? product.images.join('|') : product.images || ''}`;
+    const [imageState, setImageState] = useState({ key: imageKey, attempt: 0 });
     const [adding, setAdding] = useState(false);
 
-    useEffect(() => {
-        setAttempt(0);
-    }, [product._id, product.images, product.name]);
+    const attempt = imageState.key === imageKey ? imageState.attempt : 0;
 
     const imgSrc =
         attempt >= candidates.length ? FALLBACK_IMG : candidates[attempt];
 
     const handleImgError = () => {
-        setAttempt((i) => (i < candidates.length ? i + 1 : i));
+        setImageState((current) => {
+            const currentAttempt = current.key === imageKey ? current.attempt : 0;
+            return {
+                key: imageKey,
+                attempt: currentAttempt < candidates.length ? currentAttempt + 1 : currentAttempt,
+            };
+        });
     };
 
     const handleCartAction = async (buyNow = false) => {
@@ -88,11 +94,11 @@ const ProductCard = ({ product, showQuickActions = false }) => {
                 <div className="mt-auto">
                     <div className="d-flex align-items-baseline gap-2 mb-3">
                         <span className="fw-bold text-aura" style={{ fontSize: '1.1rem' }}>
-                            {product.price ? product.price.toLocaleString('vi-VN') : '0'} đ
+                            {formatCurrency(product.price)}
                         </span>
                         {product.originalPrice && (
                             <small className="text-decoration-line-through text-muted">
-                                {product.originalPrice.toLocaleString('vi-VN')} đ
+                                {formatCurrency(product.originalPrice)}
                             </small>
                         )}
                     </div>

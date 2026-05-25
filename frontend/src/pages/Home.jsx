@@ -10,6 +10,7 @@ import ProductLineSwiper from '../components/ProductLineSwiper';
 import api from '../services/api.service';
 import { useAuth } from '../hooks/useAuth';
 import { resolveImageUrl } from '../utils/imageUrl';
+import { formatCurrency } from '../utils/formatters';
 
 const Home = () => {
     const { user } = useAuth();
@@ -21,7 +22,6 @@ const Home = () => {
     const [newProducts, setNewProducts] = useState([]);
     const [articles, setArticles] = useState([]);
     const [categories, setCategories] = useState([]);
-    const [productsByCategory, setProductsByCategory] = useState({});
     const [productLines, setProductLines] = useState([]);
 
     useEffect(() => {
@@ -46,7 +46,7 @@ const Home = () => {
                     api.get('/products/top-viewed?limit=10'),
                     api.get('/products?sort=newest&limit=4'),
                     api.get('/articles?featured=true&limit=3'),
-                    api.get('/products/lines?lineLimit=8&productLimit=10'),
+                    api.get('/products/lines?lineLimit=24&productLimit=12'),
                 ]);
 
                 setPromotions(promoRes.data || []);
@@ -69,20 +69,6 @@ const Home = () => {
         };
         fetchData();
     }, []);
-
-    useEffect(() => {
-        if (!categories?.length) return;
-        const top = categories.slice(0, 5);
-        Promise.all(top.map((cat) => api.get(`/products?category=${cat._id}`)))
-            .then((resArr) => {
-                const map = {};
-                resArr.forEach((r, i) => {
-                    map[top[i]._id] = (r.data?.data || []).slice(0, 4);
-                });
-                setProductsByCategory(map);
-            })
-            .catch((err) => console.error('Error fetching category products:', err));
-    }, [categories]);
 
     const renderProducts = (list, emptyText) =>
         list.length > 0 ? (
@@ -146,7 +132,7 @@ const Home = () => {
             <Container>
                 <Row className="aura-trust-bar g-3 animate-fade-in-up delay-2">
                     {[
-                        { icon: 'bi-truck', label: 'Freeship đơn 300k' },
+                        { icon: 'bi-truck', label: `Freeship đơn ${formatCurrency(300000)}` },
                         { icon: 'bi-patch-check', label: 'Chính hãng 100%' },
                         { icon: 'bi-gift', label: 'Quà tặng đơn đầu' },
                         { icon: 'bi-arrow-repeat', label: 'Đổi trả 7 ngày' },
@@ -172,42 +158,25 @@ const Home = () => {
                 </Container>
             </section>
 
-            <section className="aura-section">
-                <Container>
-                    <header className="aura-section-header mb-3">
-                        <span className="aura-section-tag">Danh mục</span>
-                        <h2 className="aura-section-title font-display">Sản phẩm theo danh mục</h2>
-                    </header>
+            {productLines.length > 0 && (
+                <>
+                    <section className="aura-section pb-0">
+                        <Container>
+                            <header className="aura-section-header">
+                                <span className="aura-section-tag">Dòng son</span>
+                                <h2 className="aura-section-title font-display">Màu son theo từng dòng</h2>
+                                <p className="aura-section-desc">
+                                    Mỗi dòng son là một mục riêng, kéo ngang để xem đầy đủ các màu trong cùng bộ sưu tập.
+                                </p>
+                            </header>
+                        </Container>
+                    </section>
 
-                    {categories.slice(0, 5).map((cat) => (
-                        <div key={cat._id} className="mb-4">
-                            <div className="d-flex align-items-center justify-content-between mb-3">
-                                <div className="d-flex align-items-center">
-                                    <div
-                                    style={{
-                                        width: 120,
-                                        height: 80,
-                                        backgroundImage: `url("${resolveImageUrl(cat.image || `/${(cat.slug || cat.name || '').toString().toLowerCase()}/bia.jpg`)}")`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center',
-                                        borderRadius: 8,
-                                        marginRight: 16,
-                                    }}
-                                />
-                             
-                                
-                                    <h5 className="mb-1">{cat.name}</h5>
-                                    </div>
-                                    <Button as={Link} to={`/shop?category=${cat._id}`} className="btn-aura-outline btn-sm">
-                                        Xem tất cả
-                                    </Button>
-                                
-                                    </div>
-                            {renderProducts(productsByCategory[cat._id] || [], 'Chưa có sản phẩm cho danh mục này.')}
-                        </div>
+                    {productLines.map((line) => (
+                        <ProductLineSwiper key={line.lineSlug} line={line} />
                     ))}
-                </Container>
-            </section>
+                </>
+            )}
 
             {/* Sản phẩm khuyến mãi */}
             <section className="aura-section" style={{ background: 'linear-gradient(180deg, var(--peach) 0%, var(--cream) 100%)' }}>
@@ -236,10 +205,6 @@ const Home = () => {
                     {renderProducts(featured, 'Chưa có sản phẩm nổi bật.')}
                 </Container>
             </section>
-
-            {productLines.map((line) => (
-                <ProductLineSwiper key={line.lineSlug} line={line} />
-            ))}
 
             <HorizontalProductPager
                 title="🔥 Bán chạy"

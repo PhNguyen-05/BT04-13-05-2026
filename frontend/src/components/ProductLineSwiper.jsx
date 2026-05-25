@@ -1,9 +1,10 @@
 import { Container, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
+import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 import ProductCard from './ProductCard';
 
 const ProductLineSwiper = ({ line }) => {
@@ -13,23 +14,28 @@ const ProductLineSwiper = ({ line }) => {
     return (
         <section className="aura-section aura-product-line-section">
             <Container>
-                <div className="d-flex flex-wrap align-items-start justify-content-between mb-4 gap-3">
+                <div className="aura-product-line-header">
                     <div>
                         <span className="aura-section-tag">{line.category?.name || 'Dòng son'}</span>
                         <h2 className="aura-section-title font-display">{line.lineName}</h2>
+                        <p className="aura-product-line-meta">
+                            {products.length} màu son trong dòng này
+                        </p>
                     </div>
                     <Button
                         as={Link}
                         to={`/shop?lineSlug=${line.lineSlug}`}
                         className="btn-aura-outline btn-sm"
                     >
-                        Xem tất cả
+                        Xem tất cả màu
                     </Button>
                 </div>
 
                 <Swiper
-                    modules={[Navigation]}
+                    modules={[Navigation, Pagination]}
                     navigation
+                    pagination={{ clickable: true }}
+                    watchOverflow
                     spaceBetween={20}
                     slidesPerView={1.1}
                     breakpoints={{

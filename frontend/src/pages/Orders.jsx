@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import api from '../services/api.service';
 import { resolveImageUrl } from '../utils/imageUrl';
+import { formatCurrency } from '../utils/formatters';
 
 const STATUS_STEPS = [
     { key: 'pending', label: 'Đơn hàng mới', icon: 'bi-receipt' },
@@ -37,7 +38,6 @@ const PAYMENT_STATUS_LABELS = {
     refunded: 'Đã hoàn tiền',
 };
 
-const formatCurrency = (value) => Number(value || 0).toLocaleString('vi-VN') + ' đ';
 const formatDateTime = (value) => value ? new Date(value).toLocaleString('vi-VN') : '';
 
 const minutesUntil = (value) => {

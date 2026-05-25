@@ -13,6 +13,7 @@ import ShadePicker from '../components/ShadePicker';
 import { useAuth } from '../hooks/useAuth';
 import { CartContext } from '../context/CartContext';
 import { resolveImageList } from '../utils/imageUrl';
+import { formatCurrency, formatNumber } from '../utils/formatters';
 
 const LINE_SHADE_COPY = {
     '3ce-velvet-lip-tint-plush': [
@@ -377,7 +378,7 @@ const ProductDetail = () => {
                             )}
                             <span className="badge rounded-pill bg-light text-dark border">
                                 <i className="bi bi-bag-check me-1 text-aura" />
-                                Đã bán: <strong>{(activeProduct.sold || 0).toLocaleString('vi-VN')}</strong>
+                                Đã bán: <strong>{formatNumber(activeProduct.sold)}</strong>
                             </span>
                             <span className="badge rounded-pill bg-light text-dark border">
                                 <i className="bi bi-eye me-1" />
@@ -396,11 +397,11 @@ const ProductDetail = () => {
                         </div>
 
                         <div className="product-price-panel">
-                            <span className="product-price">{(activeProduct.price ?? 0).toLocaleString('vi-VN')}đ</span>
+                            <span className="product-price">{formatCurrency(activeProduct.price)}</span>
                             {activeProduct.originalPrice && (
                                 <>
                                     <span className="product-original-price">
-                                        {activeProduct.originalPrice.toLocaleString('vi-VN')}đ
+                                        {formatCurrency(activeProduct.originalPrice)}
                                     </span>
                                     <span className="product-discount">-{discountPercent}%</span>
                                 </>

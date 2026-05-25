@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { CartContext } from '../context/CartContext';
 import api from '../services/api.service';
 import { resolveImageUrl } from '../utils/imageUrl';
+import { formatCurrency } from '../utils/formatters';
 
 const getCartItemKey = (item) => `${item.product?._id || item.product}-${item.variant || 'default'}`;
 
@@ -114,7 +115,7 @@ const Checkout = () => {
                         <h2 className="font-display mt-3">Đặt hàng thành công</h2>
                         <p className="text-muted mb-1">Mã đơn: {order._id}</p>
                         <p className="fw-bold text-aura fs-4">
-                            {Number(order.totalAmount || 0).toLocaleString('vi-VN')} đ
+                            {formatCurrency(order.totalAmount)}
                         </p>
                         <div className="d-flex flex-wrap justify-content-center gap-2 mt-4">
                             <Button as={Link} to="/shop" className="btn-aura">
@@ -261,7 +262,7 @@ const Checkout = () => {
                                                 <small className="text-muted">Số lượng: {item.quantity}</small>
                                             </div>
                                             <strong>
-                                                {((item.product?.price || 0) * item.quantity).toLocaleString('vi-VN')} đ
+                                                {formatCurrency((item.product?.price || 0) * item.quantity)}
                                             </strong>
                                         </div>
                                     ))}
@@ -270,15 +271,15 @@ const Checkout = () => {
                                 <hr />
                                 <div className="d-flex justify-content-between mb-2">
                                     <span>Tạm tính</span>
-                                    <strong>{subtotal.toLocaleString('vi-VN')} đ</strong>
+                                    <strong>{formatCurrency(subtotal)}</strong>
                                 </div>
                                 <div className="d-flex justify-content-between mb-3">
                                     <span>Phí vận chuyển</span>
-                                    <strong>{shippingFee ? `${shippingFee.toLocaleString('vi-VN')} đ` : 'Miễn phí'}</strong>
+                                    <strong>{shippingFee ? formatCurrency(shippingFee) : 'Miễn phí'}</strong>
                                 </div>
                                 <div className="d-flex justify-content-between fs-5 mb-4">
                                     <strong>Tổng cộng</strong>
-                                    <strong className="text-aura">{grandTotal.toLocaleString('vi-VN')} đ</strong>
+                                    <strong className="text-aura">{formatCurrency(grandTotal)}</strong>
                                 </div>
 
                                 <Button

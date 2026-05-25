@@ -108,7 +108,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: '3ce',
         name: '3CE Gummy Oil Tint',
-        description: 'Tint dau bong mong, tao lop mau trong veo va cam giac moi mem muot.',
+        description: '',
         price: 285000,
         originalPrice: 335000,
         images: img('3ce/Gummy Oil Tint', ['1.JPG', '2.JPG', '3.JPG', '4.JPG', '5.JPG']),
@@ -120,7 +120,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: '3ce',
         name: '3CE Misty Lip Bare',
-        description: 'Son tint mem nhe voi lop mau mo suong, de dung cho makeup hang ngay.',
+        description: '',
         price: 279000,
         images: img('3ce/Misty Lip Bare', ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg']),
         shades: shades([['01', 'PINK SCHEME', '#c7838d'], ['02', 'EARLIER', '#b76a62'], ['03', 'NUDE WHISPER', '#c48b79'], ['04', 'CORAL DRENCH', '#d06a59'], ['05', 'TULIP FUZZ', '#bd5b76']]),
@@ -131,7 +131,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: '3ce',
         name: '3CE Blur Water Tint',
-        description: 'Tint nuoc min li voi hieu ung blur nhe moi, cho doi moi mem muot va tu nhien.',
+        description: '',
         price: 275000,
         images: img('3ce/Blur Water Tint', ['1.jpg', '2.jpg', '3.jpg', '4.webp', '5.jpg', '6.jpg', '7.jpg', '8.webp', '9.jpg', '10.jpg']),
         shades: shades([['01', 'DEAR MARCH', '#b94a4b'], ['02', 'DOUBLE WIND', '#ad5146'], ['03', 'LAYDOWN', '#be6a62'], ['04', 'PINK GUAVA', '#d46c77'], ['05', 'PLAY OFF', '#a33e42'], ['06', 'CASUAL AFFAIR', '#b87564'], ['07', 'CORAL MOON', '#d16b57'], ['08', 'SPOT PLAYER', '#bc5163'], ['09', 'BREEZE WAY', '#c98875'], ['10', 'MORE PEACH', '#df8a67']]),
@@ -142,7 +142,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: '3ce',
         name: '3CE Velvet Lip Tint Plush',
-        description: 'Ch?t son velvet m?m m?n, l?n m?u chu?n v? gi? m?i lu?n c?ng m??t.',
+        description: '',
         price: 295000,
         originalPrice: 350000,
         images: img('3ce/Velvet Lip Tint Plush', ['1.webp', '2.webp', '7.webp', '8.webp', '23.webp']),
@@ -154,7 +154,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: '3ce',
         name: '3CE Cashmere Hug Lipstick',
-        description: 'Son thoi mem min, om moi nhe voi lop mau cashmere am ap va sang.',
+        description: '',
         price: 315000,
         originalPrice: 365000,
         images: img('3ce/Cashmere Hug Lipstick', ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg']),
@@ -166,7 +166,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'bbia',
         name: 'BBIA Glow Tint Edition',
-        description: 'Son tint b?ng trong tr?o v?i hi?u ?ng glow c?ng m?ng, ph? h?p makeup t? nhi?n.',
+        description: '',
         price: 175000,
         originalPrice: 210000,
         images: img('bbia/Glow Tint Edition', ['2.jpg', '3.jpg', '11.jpg', '12.jpg', '14.jpg', '24.jpg']),
@@ -178,7 +178,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'bbia',
         name: 'BBIA Last Velvet Lip Tint',
-        description: 'D?ng velvet tint n?i ti?ng c?a BBIA v?i ch?t son m?m m?n v? b?n m?u.',
+        description: '',
         price: 189000,
         originalPrice: 249000,
         images: img('bbia/Last Velvet Lip Tint', ['2.webp', '12.webp', '14.webp', '23.webp', '35.webp']),
@@ -190,7 +190,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'intoyou',
         name: 'Into You Customized Airy Lip Mud',
-        description: 'Son b?n airy si?u nh? m?i, t?o hi?u ?ng matte m?n v? th?i th??ng.',
+        description: '',
         price: 145000,
         originalPrice: 185000,
         images: img('intoyou/Customized Airy Lip Mud', ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg']),
@@ -202,7 +202,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'intoyou',
         name: 'Into You SHERO Super Matte Lip',
-        description: 'Ch?t son matte l? chu?n s?c, t?n m?i n?i b?t v? c? t?nh.',
+        description: '',
         price: 139000,
         images: img('intoyou/SHERO Super Matte Lip', ['1.webp', '2.webp', '3.jpg', '4.jpg']),
         shades: shades([['EM01', 'EM01', '#b8484e'], ['EM19', 'EM19', '#8f3038'], ['EM04', 'EM04', '#c35a52'], ['EM17', 'EM17', '#9d3439']]),
@@ -213,7 +213,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'merzy',
         name: 'Merzy Bite The Beat Mellow Tint',
-        description: 'Tint mellow am sac, len mau ro va giu moi mem trong nhieu gio.',
+        description: '',
         price: 185000,
         originalPrice: 225000,
         images: img('merzy/Bite The Beat Mellow Tint', ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg']),
@@ -225,7 +225,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'merzy',
         name: 'Merzy Cyber Mellow Tint',
-        description: 'Son tint cyber mellow voi cac tone thoi thuong, sac net va ca tinh.',
+        description: '',
         price: 189000,
         images: img('merzy/Cyber Mellow Tint', ['1.png', '2.png', '3.png', '4.png', '5.png']),
         shades: shades([['01', 'HIDDEN SECTION', '#98584f'], ['02', 'METALLIC MAUVE', '#a75c70'], ['03', 'TEMPTING RED', '#ad2f36'], ['04', 'NARATIVE ROSE', '#b65f70'], ['05', 'BRICK EMOTION', '#9d4437']]),
@@ -236,7 +236,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'merzy',
         name: 'Merzy New Watery Dew Tint',
-        description: 'Tint b?ng m?ng n??c v?i ?? b?m m?u t?t, mang l?i ??i m?i c?ng tr?n s?c s?ng.',
+        description: '',
         price: 189000,
         images: img('merzy/New Watery Dew Tint', ['20.png', '21.png', '22.png', '23.png', '27.png', '28.png', '29.png', '30.png']),
         shades: shades([['20', 'MISTY WOOD', '#8e5a50'], ['21', 'BURNT MAPLE', '#9c4439'], ['22', 'HAZEL CHILI', '#a63d34'], ['23', 'ANTIQUE FLAME', '#b5453a'], ['27', 'FIG DUSTY', '#9f5967'], ['28', 'WHISPER ODDY', '#b46b78'], ['29', 'FRESH BLOOM', '#ca7079'], ['30', 'BLISS DAWN', '#d38375']]),
@@ -247,7 +247,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'merzy',
         name: 'Merzy The First Velvet Tint',
-        description: 'Velvet tint co dien cua Merzy voi lop finish li min va mau dam cuon hut.',
+        description: '',
         price: 179000,
         originalPrice: 219000,
         images: img('merzy/The First Velvet Tint', ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg']),
@@ -259,7 +259,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'merzy',
         name: 'Merzy Water Fit Blur Tint',
-        description: 'Blur tint m?m m?i v?i finish l? m?n, nh? m?i v? d? t?n.',
+        description: '',
         price: 195000,
         originalPrice: 235000,
         images: img('merzy/Water Fit Blur Tint', ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg']),
@@ -294,7 +294,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'romand',
         name: 'Romand Glasting Water Tint',
-        description: 'Tint b?ng n??c v?i l?p m?u trong, c?ng m?i v? ?nh glasting ??c tr?ng.',
+        description: '',
         price: 175000,
         originalPrice: 215000,
         images: img('romand/Glasting Water Tint', ['1.webp', '2.webp', '3.webp', '4.webp']),
@@ -306,7 +306,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'romand',
         name: 'Romand Glasting Color Gloss',
-        description: 'Gloss m?u trong veo, t?o hi?u ?ng c?ng b?ng v? s?c m?i t??i t?n.',
+        description: '',
         price: 179000,
         images: img('romand/Glasting Color Gloss', ['1.webp', '2.webp', '3.webp', '4.webp', '5.webp']),
         shades: shades([['01', 'PEONY BALLET', '#d28a9a'], ['02', 'NUTTY VAGUE', '#b98270'], ['03', 'ROSE FINCH', '#c66b78'], ['04', 'GRAPY WAY', '#a06378'], ['05', 'DIM MAUVE', '#9b6272']]),
@@ -317,7 +317,7 @@ const PRODUCT_TEMPLATES = [
     {
         categorySlug: 'romand',
         name: 'Romand Dewyful Water Tint',
-        description: 'Water tint c?ng b?ng t? nhi?n v?i m?u s?c trong tr?o, tr? trung.',
+        description: '',
         price: 165000,
         images: img('romand/Dewyful Water Tint', ['1.webp', '2.webp', '3.webp', '4.webp', '5.webp']),
         shades: shades([['01', 'IN CORAL', '#d26b5b'], ['02', 'SALTY PEACH', '#df8b72'], ['03', 'IF ROSE', '#c76f7c'], ['04', 'CHERRY WAY', '#bd3945'], ['05', 'CUSTARD MAUVE', '#b87883']]),

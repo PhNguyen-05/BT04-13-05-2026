@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { useAuth } from '../hooks/useAuth';
 import { resolveImageUrl } from '../utils/imageUrl';
+import { formatCurrency } from '../utils/formatters';
 
 const getCartItemKey = (item) => `${item.product?._id || item.product}-${item.variant || 'default'}`;
 
@@ -158,7 +159,7 @@ const Cart = () => {
                                         </Col>
                                         <Col md={2} className="text-center">
                                             <h6 className="text-danger fw-bold">
-                                                {(item.product?.price || 0).toLocaleString('vi-VN')} ₫
+                                                {formatCurrency(item.product?.price)}
                                             </h6>
                                             <div className="d-flex align-items-center justify-content-center gap-2 mt-2">
                                                 <Button
@@ -215,7 +216,7 @@ const Cart = () => {
                             <div className="d-flex justify-content-between mb-4 fs-5">
                                 <strong>Tổng tiền:</strong>
                                 <strong className="text-danger">
-                                    {selectedTotal.toLocaleString('vi-VN')} ₫
+                                    {formatCurrency(selectedTotal)}
                                 </strong>
                             </div>
 

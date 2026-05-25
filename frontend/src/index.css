@@ -1307,8 +1307,23 @@ h1, h2, h3, h4, .font-display {
   background: linear-gradient(180deg, var(--cream) 0%, var(--blush) 100%);
 }
 
+.aura-product-line-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.aura-product-line-meta {
+  margin: 0.35rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
 .aura-product-line-swiper {
-  padding: 0.25rem 0.25rem 2.75rem;
+  padding: 0.25rem 0.25rem 3.2rem;
 }
 
 .aura-product-line-swiper .swiper-button-prev,
@@ -1325,6 +1340,15 @@ h1, h2, h3, h4, .font-display {
 .aura-product-line-swiper .swiper-button-next::after {
   font-size: 1rem;
   font-weight: 800;
+}
+
+.aura-product-line-swiper .swiper-pagination-bullet {
+  background: rgba(132, 76, 82, 0.4);
+  opacity: 1;
+}
+
+.aura-product-line-swiper .swiper-pagination-bullet-active {
+  background: var(--rose-deep);
 }
 
 .checkout-panel {

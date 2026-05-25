@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Container, Table, Form, Button, Badge, Alert, Spinner } from 'react-bootstrap';
+import { useCallback, useEffect, useState } from 'react';
+import { Container, Table, Form, Badge, Alert, Spinner } from 'react-bootstrap';
 import api from '../services/api.service';
 import { useAuth } from '../hooks/useAuth';
+import { formatCurrency } from '../utils/formatters';
 
 const STATUS_OPTIONS = [
     { value: '', label: 'Tất cả' },
@@ -32,7 +33,7 @@ const AdminOrders = () => {
     const [message, setMessage] = useState('');
     const [updatingId, setUpdatingId] = useState(null);
 
-    const fetchOrders = async () => {
+    const fetchOrders = useCallback(async () => {
         try {
             setLoading(true);
             const params = statusFilter ? `?status=${statusFilter}` : '';
@@ -43,11 +44,13 @@ const AdminOrders = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [statusFilter]);
 
     useEffect(() => {
-        if (isAdmin) fetchOrders();
-    }, [isAdmin, statusFilter]);
+        if (!isAdmin) return undefined;
+        const timer = setTimeout(fetchOrders, 0);
+        return () => clearTimeout(timer);
+    }, [fetchOrders, isAdmin]);
 
     const handleStatusChange = async (orderId, status) => {
         setUpdatingId(orderId);
@@ -119,7 +122,7 @@ const AdminOrders = () => {
                                             <div>{order.user?.name || order.shippingAddress?.fullName}</div>
                                             <small className="text-muted">{order.user?.email}</small>
                                         </td>
-                                        <td>{Number(order.totalAmount || 0).toLocaleString('vi-VN')}đ</td>
+                                        <td>{formatCurrency(order.totalAmount)}</td>
                                         <td>
                                             <Badge bg="light" text="dark" className="me-1">
                                                 {STATUS_LABELS[order.status] || order.status}
