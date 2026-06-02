@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap';
 import { useAuth } from '../hooks/useAuth';
 
 const MemberWelcome = () => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
 
     if (!user) return null;
 
@@ -30,10 +30,6 @@ const MemberWelcome = () => {
                         <Button as={Link} to="/shop" className="btn-aura btn-sm">
                             <i className="bi bi-bag-heart me-1" />
                             Mua sắm
-                        </Button>
-                        <Button className="btn-aura-outline btn-sm" onClick={logout}>
-                            <i className="bi bi-box-arrow-right me-1" />
-                            Đăng xuất
                         </Button>
                     </div>
                 </div>

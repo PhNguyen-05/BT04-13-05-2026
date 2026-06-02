@@ -492,11 +492,6 @@ const ProductDetail = () => {
                 </Row>
             </section>
 
-            <section className="product-description-panel">
-                <h5>Mô tả chi tiết</h5>
-                <p>{activeProduct.description || 'Son môi cao cấp Aura Lips, màu chuẩn, bền màu và dưỡng môi.'}</p>
-            </section>
-
             {similar.length > 0 && (
                 <section className="mt-5 pt-4">
                     <h3 className="font-display mb-4">Sản phẩm tương tự</h3>

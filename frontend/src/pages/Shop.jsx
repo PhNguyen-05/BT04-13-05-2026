@@ -5,6 +5,9 @@ import ProductCard from '../components/ProductCard';
 import CategoryStrip from '../components/CategoryStrip';
 import api from '../services/api.service';
 
+const normalizePriceInput = (value = '') => value.replace(/\D/g, '');
+const formatPriceInput = (value = '') => normalizePriceInput(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
 const Shop = () => {
     const [searchParams] = useSearchParams();
     const [products, setProducts] = useState([]);
@@ -12,8 +15,8 @@ const Shop = () => {
     const [search, setSearch] = useState(searchParams.get('search') || '');
     const [category, setCategory] = useState(searchParams.get('category') || '');
     const [lineSlug, setLineSlug] = useState(searchParams.get('lineSlug') || '');
-    const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
-    const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
+    const [minPrice, setMinPrice] = useState(normalizePriceInput(searchParams.get('minPrice') || ''));
+    const [maxPrice, setMaxPrice] = useState(normalizePriceInput(searchParams.get('maxPrice') || ''));
     const [sort, setSort] = useState(searchParams.get('sort') || '');
     const [onSale, setOnSale] = useState(searchParams.get('onSale') === 'true');
     const [inStock, setInStock] = useState(searchParams.get('inStock') === 'true');
@@ -161,21 +164,23 @@ const Shop = () => {
                     <Col lg={2} md={4}>
                         <Form.Label className="aura-form-label small">Giá từ</Form.Label>
                         <Form.Control
-                            type="number"
+                            type="text"
+                            inputMode="numeric"
                             className="aura-form-control"
                             placeholder="0"
-                            value={minPrice}
-                            onChange={(e) => setMinPrice(e.target.value)}
+                            value={formatPriceInput(minPrice)}
+                            onChange={(e) => setMinPrice(normalizePriceInput(e.target.value))}
                         />
                     </Col>
                     <Col lg={2} md={4}>
                         <Form.Label className="aura-form-label small">Giá đến</Form.Label>
                         <Form.Control
-                            type="number"
+                            type="text"
+                            inputMode="numeric"
                             className="aura-form-control"
-                            placeholder="500000"
-                            value={maxPrice}
-                            onChange={(e) => setMaxPrice(e.target.value)}
+                            placeholder="500.000"
+                            value={formatPriceInput(maxPrice)}
+                            onChange={(e) => setMaxPrice(normalizePriceInput(e.target.value))}
                         />
                     </Col>
                     <Col lg={3} md={4}>
